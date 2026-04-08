@@ -130,7 +130,7 @@ PROMPT=' $(exit_status)'\
 # ======================== Python Hax ==========================================
 autoload -Uz add-zsh-hook
 _auto_venv() {                       # auto-activate python venv on cd into dir
-                          # if alread inside a venv, check if should deactivate
+                          # if already inside a venv, check if should deactivate
     if [[ -n "$VIRTUAL_ENV" ]]; then
         if [[ ! -f ".venv/bin/activate" ]]; then
             deactivate 2>/dev/null
