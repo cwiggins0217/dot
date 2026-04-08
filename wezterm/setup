@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# check if wezterm is installed
+if [ -z "$(command -v wezterm)" ]; then
+	echo "wezterm not found"
+fi
+
+rm -rf "$HOME/.config/wezterm/"
+rm -rf "$HOME/.wezterm.lua"
+ln -s  "$PWD/wezterm.lua" "$HOME/.wezterm.lua"

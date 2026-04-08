@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# check if vim or vim-tiny is installed
+if [ -z "$(command -v vim)" -o -z "$(command -v vimtutor)" ]; then
+  echo "Warning, doesn't look like you have full Vim version."
+fi
+
+# check if neovim is installed
+if [ -z "$(command -v nvim)" ] ; then
+  echo "neovim not found"
+fi
+
+rm -rf "$HOME/.vim/"
+rm -rf "$HOME/.vimrc"
+rm -rf "$HOME/.config/nvim/"
+mkdir -p "$HOME/.config/nvim/"
+mkdir "$HOME/.vim/" "$HOME/.vim/"
+ln -sf "$PWD/.vimrc" "$HOME/.vimrc"
+ln -sd "$PWD/vim/" "$HOME/.vim/"

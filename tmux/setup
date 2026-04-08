@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# check if tmux is installed
+if [ -z "$(command -v tmux)" ] ; then
+	echo "tmux not found"
+fi
+
+rm -rf "$HOME/.tmux.conf"
+rm -rf "$HOME/.config/tmux/"
+ln -sf "$PWD/tmux.conf" "$HOME/.tmux.conf"

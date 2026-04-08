@@ -1,0 +1,222 @@
+# ============================== Interactive check =============================
+case $- in
+	*i*) ;;
+	*) return;;
+esac
+# ==============================================================================
+
+
+# ============================= Misc Options ===================================
+autoload -Uz compinit && compinit
+autoload -U colors && colors
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.cache/zsh/history
+
+zstyle ':completion:*' match-list 'm:{a-z}-{A-Za-z}'
+zstyle ':completion:*' menu select
+
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_SILENT
+setopt SHARE_HISTORY
+setopt HIST_FIND_NO_DUPS
+# ==============================================================================
+
+
+# ============================== VI Mode =======================================
+bindkey -v # you know, cuz L33T H4X0R
+# ==============================================================================
+
+
+export KEYTIMEOUT=1 # FIXME look up what this does, I can't remember
+
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd 'v' edit-command-line
+
+
+# ============================= Prompt =========================================
+autoload -Uz vcs_info
+setopt PROMPT_SUBST
+zstyle ':vcs_info:git:*' formats ' (%b)'
+
+# Enable prompt substitution
+setopt PROMPT_SUBST
+
+# colors
+FG_BLUE="%F{4}"     # structure
+FG_CYAN="%F{14}"     # identity
+FG_GREEN="%F{2}"    # success
+FG_YELLOW="%F{11}"  # warning/root
+FG_RED="%F{196}"     # error
+FG_DIM="%F{245}"     # subtle
+RESET="%f"
+
+# Exit status indicator (critical signal)
+exit_status() {
+  if [[ $? -ne 0 ]]; then
+    echo "${FG_RED}✖${RESET} "
+  else
+    echo "${FG_GREEN}✔${RESET} "
+  fi
+}
+
+# Root indicator
+root_indicator() {
+  if [[ $EUID -eq 0 ]]; then
+    echo "${FG_YELLOW}#${RESET}"
+  else
+    echo "${FG_DIM}$ ${RESET}"
+  fi
+}
+
+# Git branch (minimal, no noise)
+git_branch() {
+  local branch
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [[ -n "$branch" ]]; then
+    echo " ${FG_DIM}(${branch})${RESET}"
+  fi
+}
+
+# Enable vi keybindings
+bindkey -v
+
+# Track mode
+function zle-keymap-select {
+  case $KEYMAP in
+    vicmd)
+      MODE="%F{4}N%f" ;;     # NORMAL  (blue)
+    viins|main)
+      MODE="%F{2}I%f" ;;     # INSERT  (green)
+    visual)
+      MODE="%F{5}V%f" ;;     # VISUAL  (magenta)
+    replace)
+      MODE="%F{3}R%f" ;;     # REPLACE (yellow)
+    *)
+      MODE="%F{243}?%f" ;;
+  esac
+  zle reset-prompt
+}
+
+               # check for python venv. Display python emoji when in a venv dir
+precmd() {
+  if [[ -n "$VIRTUAL_ENV" ]]; then
+    local name=$(basename "$VIRTUAL_ENV")
+    VENV_PROMPT="%F{green}🐍($name)%f "
+  else
+    VENV_PROMPT=""
+  fi
+}
+
+zle -N zle-keymap-select
+
+                                                   # Initialize mode on startup
+function zle-line-init {
+  zle-keymap-select
+}
+zle -N zle-line-init
+
+PROMPT=' $(exit_status)'\
+'${FG_CYAN}%n@%m${RESET} '\
+'${FG_BLUE}%~${RESET}'\
+'$(git_branch) '\
+'${MODE} ${VENV_PROMP} $(root_indicator) '
+# ==============================================================================
+
+
+# ======================== Python Hax ==========================================
+autoload -Uz add-zsh-hook
+_auto_venv() {                       # auto-activate python venv on cd into dir
+                          # if alread inside a venv, check if should deactivate
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        if [[ ! -f ".venv/bin/activate" ]]; then
+            deactivate 2>/dev/null
+        fi
+    fi
+
+    if [[ -z "$VIRTUAL_ENV" && ".venv/bin/activate" ]]; then
+        source .venv/bin/activate
+    fi
+}
+add-zsh-hook chpwd _auto_venv
+# ==============================================================================
+
+
+# ============================= Exports ========================================
+export PATH=$PATH:/sbin/:/usr/sbin:~/go/bin/:~/.local/bin/:/usr/local/go/bin/:~/Scripts:~/.cargo/bin/
+#export GITUSER
+#export REPOS
+#export GHREPOS
+#export DOTFILES
+#export IRCNICK
+#export IRCSERVER
+export SCRIPTS
+export SNIPPETS
+export HELP_BROWSER=w3m
+export CLICOLOR=1
+export EDITOR=vi
+export VISUAL=vi
+export EDITOR_PREFIX=vi
+export HRULEWIDTH=101
+export GOPATH="$HOME/.local/go"
+export GOBIN="$HOME/.local/bin"
+export GOPROXY=direct
+#export NVIM_SCREENKEY=1
+export CGO_ENABLED=0
+export PYTHONDONTWRITEBYTECODE=2
+export LC_COLLATE=C
+export CFLAGS="-Wall -Wextra -Werror -O2 -g -finstrument-functions"
+# ==============================================================================
+
+
+if (( ${+commands[dircolors]} )); then
+	if [[ -r "$HOME/.dir_colors" ]]; then
+		eval "$(dircolors -b "$HOME/.dir_colors")"
+	else
+		eval "$(dircolors -b)"
+	fi
+fi
+
+setopt DOTGLOB
+
+if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
+	source /usr/share/git-core/contrib/completion/git-prompt.sh
+elif [ -f /etc/zsh_completion.d/git-prompt ]; then
+	source /etc/zsh_completion.d/git-prompt
+fi
+
+
+# ================================ Aliases =====================================
+unalias -a
+alias vi='nvim'
+alias l="ls"
+alias la="ls -al"
+alias '?'=duck
+alias '??'=google
+alias dot='cd $DOTFILES'
+alias scripts='cd $SCRIPTS'
+alias snippets='cd $SNIPPETS'
+alias ls='ls -h --color=auto'
+alias free='free-h'
+alias df='df -h'
+alias diff='diff --color'
+alias temp='cd $(mktemp -d)'
+alias view='vi -R'
+alias grep='pcregrep'
+# ==============================================================================
+
+
+#. "$HOME/.local/bin/env"
+. "$HOME/.cargo/env"
+
+                                                  # FIXME change path if needed
+#source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+                # autostart tmux (attach if running, create new session if not)
+if [[ "$TERM_PROGRAM" == "WezTerm" && -z "$TMUX" ]]; then
+    exec tmux attach -t main || exec tmux new -s main
+fi
