@@ -46,7 +46,7 @@ zstyle ':vcs_info:git:*' formats ' (%b)'
 setopt PROMPT_SUBST
 
 # colors
-FG_BLUE="%F{4}"     # structure
+FG_BLUE="%F{12}"     # structure
 FG_CYAN="%F{14}"     # identity
 FG_GREEN="%F{2}"    # success
 FG_YELLOW="%F{11}"  # warning/root
@@ -88,7 +88,7 @@ bindkey -v
 function zle-keymap-select {
   case $KEYMAP in
     vicmd)
-      MODE="%F{4}N%f" ;;     # NORMAL  (blue)
+      MODE="%F{12}N%f" ;;     # NORMAL  (blue)
     viins|main)
       MODE="%F{2}I%f" ;;     # INSERT  (green)
     visual)
@@ -96,7 +96,7 @@ function zle-keymap-select {
     replace)
       MODE="%F{3}R%f" ;;     # REPLACE (yellow)
     *)
-      MODE="%F{243}?%f" ;;
+      MODE="%F{244}?%f" ;;
   esac
   zle reset-prompt
 }
@@ -130,7 +130,7 @@ PROMPT=' $(exit_status)'\
 # ======================== Python Hax ==========================================
 autoload -Uz add-zsh-hook
 _auto_venv() {                       # auto-activate python venv on cd into dir
-                          # if already inside a venv, check if should deactivate
+                          # if alread inside a venv, check if should deactivate
     if [[ -n "$VIRTUAL_ENV" ]]; then
         if [[ ! -f ".venv/bin/activate" ]]; then
             deactivate 2>/dev/null
@@ -146,7 +146,7 @@ add-zsh-hook chpwd _auto_venv
 
 
 # ============================= Exports ========================================
-export PATH=$PATH:/sbin/:/usr/sbin:~/go/bin/:~/.local/bin/:/usr/local/go/bin/:~/Scripts:~/.cargo/bin/
+export PATH=$PATH:~/zig/:/sbin/:/usr/sbin:~/go/bin/:~/.local/bin/:/usr/local/go/bin/:~/Scripts:~/.cargo/bin/
 #export GITUSER
 #export REPOS
 #export GHREPOS
@@ -169,9 +169,11 @@ export CGO_ENABLED=0
 export PYTHONDONTWRITEBYTECODE=2
 export LC_COLLATE=C
 export CFLAGS="-Wall -Wextra -Werror -O2 -g -finstrument-functions"
-# ==============================================================================
+export PULSE_SERVER=tcp:127.0.0.1 # XXX This is a hack to have audio on wsl2
+# ==================================================================================================
 
 
+# ====================== Dir Colors and Git Completion =============================================
 if (( ${+commands[dircolors]} )); then
 	if [[ -r "$HOME/.dir_colors" ]]; then
 		eval "$(dircolors -b "$HOME/.dir_colors")"
@@ -187,9 +189,10 @@ if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
 elif [ -f /etc/zsh_completion.d/git-prompt ]; then
 	source /etc/zsh_completion.d/git-prompt
 fi
+# ==================================================================================================
 
 
-# ================================ Aliases =====================================
+# ================================ Aliases =========================================================
 unalias -a
 alias vi='nvim'
 alias l="ls"
@@ -217,6 +220,11 @@ alias grep='pcregrep'
 source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
                 # autostart tmux (attach if running, create new session if not)
-if [[ "$TERM_PROGRAM" == "WezTerm" && -z "$TMUX" ]]; then
-    exec tmux attach -t main || exec tmux new -s main
-fi
+#if [[ -z "$TMUX" ]]; then
+#    exec tmux attach -t main || exec tmux new -s main
+#fi
+
+# Load GitHub Copilot token from gnome-keyring
+export GH_TOKEN=$(secret-tool lookup service copilot-cli user cwiggins0217 2>/dev/null)
+
+source /home/c00293661/.config/broot/launcher/bash/br

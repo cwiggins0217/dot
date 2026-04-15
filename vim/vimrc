@@ -98,8 +98,90 @@ endf
 
 
 " ===================================== statusline =================================================
-set laststatus=0
-set ruf=%30(%=%#LineNr#%.50F\ [%{strlen(&ft)?&ft:'none'}]\ %l:%c\ %p%%%)
+set laststatus=2
+function! Statusline() abort
+  if win_getid() != win_getid(winnr())
+    return '%#StatusLineNC# %f %=%y '
+  endif
+
+  return '%#StatusLineMode# %{ModeLabel()} ' .
+        \ '%#StatusLineFile# %< %{FileLabel()}%{Flags()} ' .
+        \ '%{GitBranch()!='''?' '.GitBranch().' ':''}' .
+        \ '%=' .
+        \ '%#StatusLineInfo# %{FileTypeLabel()} ' .
+        \ '%#StatusLineWarn# %2p%% ' .
+        \ '%#StatusLineInfo# %3l:%-2c '
+endfunction
+
+function! ModeLabel() abort
+  let l:m = mode()
+  return get({
+        \ 'n': 'NORMAL',
+        \ 'i': 'INSERT',
+        \ 'R': 'REPLACE',
+        \ 'v': 'VISUAL',
+        \ 'V': 'V-LINE',
+        \ "\<C-v>": 'V-BLOCK',
+        \ 'c': 'COMMAND',
+        \ 't': 'TERMINAL',
+        \ }, l:m, toupper(l:m))
+endfunction
+
+function! FileLabel() abort
+  if &buftype ==# 'help'
+    return 'help:' . expand('%:t')
+  elseif &buftype ==# 'terminal'
+    return 'terminal'
+  elseif expand('%') ==# ''
+    return '[No Name]'
+  endif
+  return pathshorten(expand('%:.'))
+endfunction
+
+function! FileTypeLabel() abort
+  return empty(&filetype) ? 'text' : &filetype
+endfunction
+
+function! Flags() abort
+  return (&readonly ? ' RO' : '') . (&modified ? ' +' : '')
+endfunction
+
+function! GitBranch() abort
+  let l:gitdir = finddir('.git', expand('%:p:h') . ';')
+  if empty(l:gitdir)
+    return ''
+  endif
+
+  let l:headfile = l:gitdir . '/HEAD'
+  if !filereadable(l:headfile)
+    return ''
+  endif
+
+  let l:head = get(readfile(l:headfile), 0, '')
+  if l:head =~# '^ref: '
+    return substitute(l:head, '^ref: refs/heads/', '', '')
+  endif
+
+  return '[detached]'
+endfunction
+
+function! GitBranchStatus() abort
+  let l:branch = GitBranch()
+  return empty(l:branch) ? '' : '   ' . l:branch
+endfunction
+
+set statusline=
+set statusline+=%#StatusLineMode#
+set statusline+=\ %{ModeLabel()}
+set statusline+=\ %#StatusLineFile#
+set statusline+=\ %<\ %{FileLabel()}%{Flags()}%{GitBranchStatus()}
+set statusline+=%=
+set statusline+=%#StatusLineInfo#
+set statusline+=\ %{FileTypeLabel()}
+set statusline+=\ %#StatusLineWarn#
+set statusline+=\ %2p%%
+set statusline+=\ %#StatusLineInfo#
+set statusline+=\ %3l:%-2c
 " ==================================================================================================
 
 
@@ -125,9 +207,7 @@ nnoremap <leader>r :set number! relativenumber!<CR>
 
 
 
-""""""""""""""""""""
-"     Vim-Plug      "
-"""""""""""""""""""""
+" ==================================== Vim-Plug ====================================================
 " as a rule-of-thumb, I prefer built-in functions and filters over extensions
 " only runs if vim-plug script is found in ~/.vim/autoload/
 if filereadable(expand("~/.vim/autoload/plug.vim"))
@@ -140,6 +220,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'rwxrob/vim-pandoc-syntax-simple'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
+        Plug 'jnurmine/zenburn'
 
         " coc requires nvim 0.8
         if has('nvim-0.8')
@@ -227,12 +308,19 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
 if has("syntax")
     syntax on
     set background=dark
-    colorscheme selenized
+    colorscheme zenburn
     hi clear SignColumn
     hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
-    hi StatusLine ctermfg=11 guifg=#ebc13d
+
+    highlight StatusLineMode cterm=bold ctermfg=223 ctermbg=238 guifg=#f0dfaf guibg=#4f4f4f gui=bold
+    highlight StatusLineFile cterm=none ctermfg=188 ctermbg=237 guifg=#dcdccc guibg=#3f3f3f gui=none
+    highlight StatusLineInfo cterm=none ctermfg=144 ctermbg=237 guifg=#9fafaf guibg=#3f3f3f gui=none
+    highlight StatusLineWarn cterm=bold ctermfg=223 ctermbg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
+    highlight StatusLineNC   cterm=none ctermfg=108 ctermbg=236 guifg=#7f9f7f guibg=#2f2f2f gui=none
+
+   hi CursorLineNr ctermbg=NONE guibg=NONE
 endif
 
 " ====================================== END CONFIG ================================================
