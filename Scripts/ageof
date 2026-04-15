@@ -1,0 +1,28 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use File::stat;
+use Time::HiRes qw(time);
+
+sub ageof {
+  my ($path) = @_;
+
+  unless ($path) {
+    warn "usage: ageof <path>\n";
+    return 1;
+  }
+
+  unless (-e $path) {
+    warn "File '$path' does not exist \n";
+    return 1;
+  }
+
+  my $mtime = stat($path)->mtime;
+  my $now = time();
+
+  my $age = $now - $mtime;
+  print "$age\n";
+  return 0;
+}
+
+exit ageof($ARGV[0]);

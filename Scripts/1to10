@@ -1,0 +1,6 @@
+#!/usr/bin/env perl
+
+my $n = $ARGV[0] // 10;
+my $s = $ARGV[1] // " ";
+
+for my $i (1..$n) { print "$i. $s\n"; }

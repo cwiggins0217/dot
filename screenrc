@@ -1,0 +1,69 @@
+# ~/.screenrc
+
+startup_message off
+vbell off
+defscrollback 5000
+autodetach on
+shelltitle "$ |bash"
+defutf8 on
+attrcolor b ".I"
+term screen-256color
+defbce off
+
+altscreen on
+nonblock on
+deflogin on
+activity "⚠ activity in %n:%t"
+bell_msg "⛔ bell in %n:%t"
+silencewait 15
+
+screen -t shell 1
+screen -t logs 2
+screen -t ops 3
+
+bind c screen
+bind ^c screen
+bind k kill
+bind K remove
+bind ^k kill
+
+bind j focus down
+bind k focus up
+bind h focus left
+bind l focus right
+
+bind - split
+bind | split -v
+bind x remove
+bind X only
+
+bind V eval "split -v" "focus" "stuff \"screen -X chdir \$PWD; screen -t shell^M\""
+
+bind 0 select 0
+bind 1 select 1
+bind 2 select 2
+bind 3 select 3
+bind 4 select 4
+bind 5 select 5
+bind 6 select 6
+bind 7 select 7
+bind 8 select 8
+bind 9 select 9
+
+hardstatus alwayslastline
+hardstatus string '%{= bG} root@%H %{= kK}|%{= bC} %Y-%m-%d %c %{= kK}|%{= bM} %-Lw%{= bR}%50>%n:%t%{-}%+Lw %{= kK}|%{= bY} LOAD %l '
+caption always "%{= kB} %3n %t %{= kw}| %{= kG}%H %{= kw}| %{= kC}%c "
+
+escape ^Aa
+bind a wall "NODE ACTIVE"
+
+bind r source $HOME/.screenrc
+
+bind P eval "stuff \"htop^M\""
+bind N eval "stuff \"btop^M\""
+bind T eval "stuff \"tail -f /var/log/syslog^M\""
+
+windowlist string "%n %t"
+windowlist title " windows "
+
+sessionname main

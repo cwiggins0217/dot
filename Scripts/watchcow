@@ -1,0 +1,10 @@
+#!/bin/sh
+
+hidecursor
+while true; do
+  clear
+  echo
+  fortune -s | cowsay
+  sleep 10
+done
+

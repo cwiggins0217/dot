@@ -1,0 +1,4 @@
+#!/bin/sh
+
+test -t 1 && exec curl -sSL wttr.in?0
+curl -sSL wttr.in?0

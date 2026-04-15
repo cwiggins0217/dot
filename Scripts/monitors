@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#if [[ 'palantir' == $HOSTNAME ]]
+#then
+  #xrandr --noprimary
+  xrandr --output DisplayPort-2 --mode 2560x1440 --rate 144.00 --primary
+  xrandr --output DisplayPort-1 --left-of DisplayPort-2 --mode 2560x1440 --rate 144.00
+#fi 

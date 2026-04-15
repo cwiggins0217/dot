@@ -1,0 +1,2 @@
+#!/usr/bin/env perl 
+for my $i (0..255) { printf "\e[38;5;%dm%d ", $i, $i; } ; print "\n"

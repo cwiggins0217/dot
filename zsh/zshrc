@@ -227,6 +227,4 @@ source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # Load GitHub Copilot token from gnome-keyring
 export GH_TOKEN=$(secret-tool lookup service copilot-cli user cwiggins0217 2>/dev/null)
 
-source /home/c00293661/.config/broot/launcher/bash/br
-
 source /home/cwiggins/.config/broot/launcher/bash/br

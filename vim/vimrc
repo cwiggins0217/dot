@@ -35,9 +35,14 @@ endif
 
 match Visual '\s\+$'
 
-if has('termguicolors')
-    set termguicolors
+if &term =~ '256color'
+    set t_ut=
 endif
+
+set notermguicolors " because screen and neovim don't like each other very much, thining about switching back to tmux honestly
+"if has('termguicolors')
+"    set termguicolors
+"endif
 set t_Co=256
 " ==================================================================================================
 
@@ -314,13 +319,14 @@ if has("syntax")
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
 
-    highlight StatusLineMode cterm=bold ctermfg=223 ctermbg=238 guifg=#f0dfaf guibg=#4f4f4f gui=bold
-    highlight StatusLineFile cterm=none ctermfg=188 ctermbg=237 guifg=#dcdccc guibg=#3f3f3f gui=none
-    highlight StatusLineInfo cterm=none ctermfg=144 ctermbg=237 guifg=#9fafaf guibg=#3f3f3f gui=none
-    highlight StatusLineWarn cterm=bold ctermfg=223 ctermbg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
-    highlight StatusLineNC   cterm=none ctermfg=108 ctermbg=236 guifg=#7f9f7f guibg=#2f2f2f gui=none
+    highlight StatusLineMode cterm=bold ctermbg=223 ctermfg=238 guifg=#f0dfaf guibg=#4f4f4f gui=bold
+    highlight StatusLineFile cterm=none ctermbg=188 ctermfg=237 guifg=#dcdccc guibg=#3f3f3f gui=none
+    highlight StatusLineInfo cterm=none ctermbg=144 ctermfg=237 guifg=#9fafaf guibg=#3f3f3f gui=none
+    highlight StatusLineWarn cterm=bold ctermbg=223 ctermfg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
+    highlight StatusLineNC   cterm=none ctermbg=108 ctermfg=236 guifg=#7f9f7f guibg=#2f2f2f gui=none
 
-   hi CursorLineNr ctermbg=NONE guibg=NONE
+    hi CursorLineNr ctermbg=NONE guibg=NONE
+    hi ColorColumn cterm=NONE
 endif
 
 " ====================================== END CONFIG ================================================
