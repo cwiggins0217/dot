@@ -38,17 +38,19 @@ if wezterm.config_builder then config = wezterm.config_builder() end
 if myos == "windows" then -- powershell default for windows
     config.default_prog = { 'powershell' }
 elseif myos == "linux" or myos == "macos" then -- FIXME linux and mac should do the same, right?
-    config.default_prog = {  }
+    config.default_prog = { '/usr/bin/zsh' }
 end
 --------------------------------------------------------------------------------
 
 
 -------------------------------- Font and Colorscheme --------------------------
 config.font = wezterm.font_with_fallback{ -- also disables ligatures
-  { family = "Lyth Mono Square", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, },
+  { family = "CommitMono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, },
   { family = "JetBrains Mono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, }, }
 
-config.color_scheme = "Selenized Dark (Gogh)"
+--config.color_scheme = "Selenized Dark (Gogh)"
+--config.color_scheme = "Selenized Light (Gogh)"
+config.color_scheme = "Zenburn"
 
 if myos == "windows" then -- windows-specific desktop env stuff
     config.win32_system_backdrop = 'Auto' -- the other options are buggy, only this seems to work
@@ -67,9 +69,10 @@ wezterm.on('toggle-opacity', function(window, pane)
   if not overrides.window_background_opacity or overrides.window_background_opacity == 1.0 then
     overrides.window_background_opacity = 0.95
     -- Using the RGB for Selenized Dark (16, 60, 72)
+    -- Using the RGB for Zenburn (63, 63, 63)
     -- The 0.8 alpha ensures it doesn't "white out"
     overrides.colors = {
-      background = 'rgba(16, 60, 72, 0.90)',
+      background = 'rgba(63, 63, 63, 0.90)',
     }
   else
     -- Toggle OFF: Reset to fully opaque
@@ -102,6 +105,7 @@ config.keys = {
  }
  -------------------------------------------------------------------------------
 
+
 ------------------------ Window Padding and Color Hacks ------------------------
 config.window_padding = {
 	left = 10,
@@ -109,17 +113,12 @@ config.window_padding = {
 	top = 20,
 	bottom = 10,
 }
-
-config.colors = {
-    cursor_bg = "#f275be", -- pink cursor for easy finding
-    cursor_fg = "#103c48",
-    cursor_border = "#f275be",
-}
 --------------------------------------------------------------------------------
+
 
 -------------------------------- Misc ------------------------------------------
 config.prefer_egl = true -- TODO look this up, can't remember what it does
-config.bold_brightens_ansi_colors = false -- bold is not bright
+config.bold_brightens_ansi_colors = true -- bold is bright, really zenburn requires this
 config.window_decorations = "TITLE|RESIZE"
 config.window_close_confirmation = "AlwaysPrompt"
 config.scrollback_lines = 3000
