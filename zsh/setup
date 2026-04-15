@@ -1,0 +1,7 @@
+#!/bin/sh
+
+rm -rf "$HOME/.zshrc"
+rm -rf "$HOME/.zshenv"
+ln -sf "$PWD/zshrc" "$HOME/.zshrc"
+ln -sf "$PWD/zshenv" "$HOME/.zshenv"
+

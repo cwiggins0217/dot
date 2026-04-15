@@ -10,10 +10,12 @@ if [ -z "$(command -v nvim)" ] ; then
   echo "neovim not found"
 fi
 
+# yes, rm -rf is not advised here but I'm blowing these whole dirs away for my stuff anyway
 rm -rf "$HOME/.vim/"
 rm -rf "$HOME/.vimrc"
 rm -rf "$HOME/.config/nvim/"
 mkdir -p "$HOME/.config/nvim/"
-mkdir "$HOME/.vim/" "$HOME/.vim/"
-ln -sf "$PWD/.vimrc" "$HOME/.vimrc"
-ln -sd "$PWD/vim/" "$HOME/.vim/"
+mkdir -p "$HOME/.vim/autoload"
+ln -sf "$PWD/vimrc" "$HOME/.vimrc"
+ln -sf "$PWD/vim/autoload/plug.vim" "$HOME/.vim/autoload/plug.vim"
+ln -sf "$PWD/init.lua" "$HOME/.config/nvim/init.lua"
