@@ -39,7 +39,7 @@ if &term =~ '256color'
     set t_ut=
 endif
 
-set notermguicolors " because screen and neovim don't like each other very much, thining about switching back to tmux honestly
+set notermguicolors " because screen and neovim don't like each other very much, thinking about switching back to tmux honestly
 "if has('termguicolors')
 "    set termguicolors
 "endif
@@ -319,7 +319,7 @@ if has("syntax")
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
 
-    highlight StatusLineMode cterm=bold ctermbg=223 ctermfg=238 guifg=#f0dfaf guibg=#4f4f4f gui=bold
+    highlight StatusLineMode cterm=bold ctermbg=223 ctermfg=23 guifg=#f0dfaf guibg=#4f4f4f gui=bold
     highlight StatusLineFile cterm=none ctermbg=188 ctermfg=237 guifg=#dcdccc guibg=#3f3f3f gui=none
     highlight StatusLineInfo cterm=none ctermbg=144 ctermfg=237 guifg=#9fafaf guibg=#3f3f3f gui=none
     highlight StatusLineWarn cterm=bold ctermbg=223 ctermfg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
