@@ -39,7 +39,8 @@ if &term =~ '256color'
     set t_ut=
 endif
 
-set notermguicolors " because screen and neovim don't like each other very much, thinking about switching back to tmux honestly
+" this works with both tmux and screen
+set notermguicolors
 "if has('termguicolors')
 "    set termguicolors
 "endif
