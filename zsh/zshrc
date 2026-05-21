@@ -46,20 +46,21 @@ zstyle ':vcs_info:git:*' formats ' (%b)'
 setopt PROMPT_SUBST
 
 # colors
-FG_BLUE="%F{12}"     # structure
-FG_CYAN="%F{14}"     # identity
-FG_GREEN="%F{2}"    # success
-FG_YELLOW="%F{11}"  # warning/root
-FG_RED="%F{196}"     # error
+FG_BLUE="%F{4}"     # structure
+FG_CYAN="%F{6}"     # identity
+FG_GREEN="%F{82}"    # success
+FG_YELLOW="%F{3}"  # warning/root
+FG_ERR="%F{196}"    # error
+FG_RED="%F{9}"     # ui red
 FG_DIM="%F{245}"     # subtle
 RESET="%f"
 
 # Exit status indicator (critical signal)
 exit_status() {
   if [[ $? -ne 0 ]]; then
-    echo "${FG_RED}✖${RESET} "
+    echo "${FG_ERR}!!${RESET} "
   else
-    echo "${FG_GREEN}✔${RESET} "
+    echo "${FG_GREEN}*${RESET} "
   fi
 }
 
@@ -77,7 +78,7 @@ git_branch() {
   local branch
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [[ -n "$branch" ]]; then
-    echo " ${FG_DIM}(${branch})${RESET}"
+    echo " ${FG_YELLOW}(${branch})${RESET}"
   fi
 }
 
@@ -88,9 +89,9 @@ bindkey -v
 function zle-keymap-select {
   case $KEYMAP in
     vicmd)
-      MODE="%F{12}N%f" ;;     # NORMAL  (blue)
+      MODE="${FG_DIM}N%f" ;;     # NORMAL  (dim)
     viins|main)
-      MODE="%F{2}I%f" ;;     # INSERT  (green)
+      MODE="%F{226}I%f" ;;     # INSERT  (yellow)
     visual)
       MODE="%F{5}V%f" ;;     # VISUAL  (magenta)
     replace)
@@ -121,27 +122,27 @@ zle -N zle-line-init
 
 PROMPT=' $(exit_status)'\
 '${FG_CYAN}%n@%m${RESET} '\
-'${FG_BLUE}%~${RESET}'\
+'${FG_DIM}%~${RESET}'\
 '$(git_branch) '\
-'${MODE} ${VENV_PROMP} $(root_indicator) '
+'${MODE} $(root_indicator) '
 # ==============================================================================
 
 
 # ======================== Python Hax ==========================================
-autoload -Uz add-zsh-hook
-_auto_venv() {                       # auto-activate python venv on cd into dir
-                          # if alread inside a venv, check if should deactivate
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        if [[ ! -f ".venv/bin/activate" ]]; then
-            deactivate 2>/dev/null
-        fi
-    fi
-
-    if [[ -z "$VIRTUAL_ENV" && ".venv/bin/activate" ]]; then
-        source .venv/bin/activate
-    fi
-}
-add-zsh-hook chpwd _auto_venv
+#autoload -Uz add-zsh-hook
+#_auto_venv() {                       # auto-activate python venv on cd into dir
+#                          # if alread inside a venv, check if should deactivate
+#    if [[ -n "$VIRTUAL_ENV" ]]; then
+#        if [[ ! -f ".venv/bin/activate" ]]; then
+#            deactivate 2>/dev/null
+#        fi
+#    fi
+#
+#    if [[ -z "$VIRTUAL_ENV" && ".venv/bin/activate" ]]; then
+#        source .venv/bin/activate
+#    fi
+#}
+#add-zsh-hook chpwd _auto_venv
 # ==============================================================================
 
 
@@ -170,6 +171,7 @@ export PYTHONDONTWRITEBYTECODE=2
 export LC_COLLATE=C
 export CFLAGS="-Wall -Wextra -Werror -O2 -g -finstrument-functions"
 export PULSE_SERVER=tcp:127.0.0.1 # XXX This is a hack to have audio on wsl2
+export PAGER='less'
 # ==================================================================================================
 
 
@@ -194,7 +196,8 @@ fi
 
 # ================================ Aliases =========================================================
 unalias -a
-alias vi='nvim'
+alias vi='vim'
+alias vi='nvim' #might have decided I'm done with neovim
 alias l="ls"
 alias la="ls -al"
 alias '?'=duck
@@ -208,7 +211,10 @@ alias df='df -h'
 alias diff='diff --color'
 alias temp='cd $(mktemp -d)'
 alias view='vi -R'
-alias grep='pcregrep'
+#alias grep='pcregrep'
+alias dev='tmux-dev'
+alias logs='tmux-logs'
+alias ops='tmux-ops'
 # ==============================================================================
 
 
@@ -228,3 +234,9 @@ source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 export GH_TOKEN=$(secret-tool lookup service copilot-cli user cwiggins0217 2>/dev/null)
 
 source /home/cwiggins/.config/broot/launcher/bash/br
+
+PATH="/home/cwiggins/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/cwiggins/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/cwiggins/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/cwiggins/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/cwiggins/perl5"; export PERL_MM_OPT;

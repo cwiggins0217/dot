@@ -1,10 +1,8 @@
 " ======================================= BEGIN CONFIG =============================================
-
 " checks for vim-tiny (vi)
 if has("eval")
         let skip_defaults_vim = 1
 endif
-
 " ======================================= basic tweaks =============================================
 set nocompatible
 set autoindent
@@ -21,9 +19,8 @@ set noignorecase
 set noerrorbells
 set visualbell
 set cursorline
-" ==================================================================================================
-
-
+set number
+set relativenumber
 " ============================== misc stuff, makes vim less annoying ===============================
 if v:version >=  800
     set nofixendofline
@@ -39,15 +36,13 @@ if &term =~ '256color'
     set t_ut=
 endif
 
-" this works with both tmux and screen
-set notermguicolors
-"if has('termguicolors')
-"    set termguicolors
-"endif
+" this works with and screen
+" notermguicolors is for solarized
+"set notermguicolors
+if has('termguicolors')
+    set termguicolors
+endif
 set t_Co=256
-" ==================================================================================================
-
-
 " ====================================== more misc stuff ===========================================
 set textwidth=100           " this is more modern, might think it's stupid later and change my mind
 set colorcolumn=101                                             " already leaning toward stupid tbh
@@ -75,9 +70,6 @@ set noshowmatch
 set hidden
 set cinoptions+=:0
 set history=100
-" ==================================================================================================
-
-
 if has("eval")
         let g:loaded_matchparen=1
 endif
@@ -101,8 +93,6 @@ fun! JumpToDef()
     exe "norm! \<C-]>"
     endif
 endf
-
-
 " ===================================== statusline =================================================
 set laststatus=2
 function! Statusline() abort
@@ -188,17 +178,14 @@ set statusline+=\ %#StatusLineWarn#
 set statusline+=\ %2p%%
 set statusline+=\ %#StatusLineInfo#
 set statusline+=\ %3l:%-2c
-" ==================================================================================================
-
-
 " =========================================== netrw ================================================
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize=25
-" ==================================================================================================
 
+" ========================================== Keybinds ==============================================
 nnoremap confe :e $HOME/.vimrc<CR>
 nnoremap confr :source $HOME/.vimrc<CR>
 nnoremap coming i_In development..._<Esc>
@@ -211,7 +198,9 @@ nnoremap <leader>pv :Vexplore<CR>
 nnoremap <leader>pl :Lexplore<CR>
 nnoremap <leader>r :set number! relativenumber!<CR>
 
-
+if filereadable(expand("/usr/local/bin/obnc"))
+    au BufRead,BufNewFile *.Mod set filetype=oberon
+endif
 
 " ==================================== Vim-Plug ====================================================
 " as a rule-of-thumb, I prefer built-in functions and filters over extensions
@@ -227,17 +216,22 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
         Plug 'jnurmine/zenburn'
+        Plug 'vim-erlang/vim-erlang-runtime'
+        Plug 'vim-erlang/vim-erlang-compiler'
+        Plug 'vim-erlang/vim-erlang-omnicomplete'
+        Plug 'vim-erlang/vim-erlang-tags'
 
+        "thinking about dropping neovim altogether... too slow
         " coc requires nvim 0.8
-        if has('nvim-0.8')
-            Plug 'neoclide/coc.nvim', {'branch': 'release'}
-        endif
+        "if has('nvim-0.8')
+            "Plug 'neoclide/coc.nvim', {'branch': 'release'}
+        "endif
 
-        " treesitter rewrite requires nvim 0.11
-        if has('nvim-0.11')
-            Plug 'nvim-treesitter/nvim-treesitter'
-            Plug 'rwxrob/nvim-treesitter-textobjects', {'do': ':TSUpdate'}
-        endif
+        " treesitter rewrite requires absolute lates nvim for some reason
+        "if has('nvim-0.11')
+            "Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+            "Plug 'rwxrob/nvim-treesitter-textobjects'
+        "endif
 
         if has('nvim')
             Plug 'xolox/vim-misc'
@@ -280,6 +274,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         let g:ale_fix_on_save = 1
         let g:ale_perl_perltidy_options = '-b'
 
+        " pandoc
         let g:pandoc#formatting#mode = 'h' " A'
         let g:pandoc#formatting#textwidth = 72
 
@@ -319,15 +314,12 @@ if has("syntax")
     hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
-
-    highlight StatusLineMode cterm=bold ctermbg=223 ctermfg=23 guifg=#f0dfaf guibg=#4f4f4f gui=bold
-    highlight StatusLineFile cterm=none ctermbg=188 ctermfg=237 guifg=#dcdccc guibg=#3f3f3f gui=none
-    highlight StatusLineInfo cterm=none ctermbg=144 ctermfg=237 guifg=#9fafaf guibg=#3f3f3f gui=none
-    highlight StatusLineWarn cterm=bold ctermbg=223 ctermfg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
-    highlight StatusLineNC   cterm=none ctermbg=108 ctermfg=236 guifg=#7f9f7f guibg=#2f2f2f gui=none
-
     hi CursorLineNr ctermbg=NONE guibg=NONE
     hi ColorColumn cterm=NONE
-endif
 
-" ====================================== END CONFIG ================================================
+    highlight StatusLineMode cterm=bold ctermfg=223 ctermbg=238 guifg=#f0dfaf guibg=#4f4f4f gui=bold
+    highlight StatusLineFile cterm=NONE ctermfg=188 ctermbg=237 guifg=#dcdccc guibg=#3f3f3f gui=NONE
+    highlight StatusLineInfo cterm=NONE ctermfg=144 ctermbg=237 guifg=#9fafaf guibg=#3f3f3f gui=NONE
+    highlight StatusLineWarn cterm=bold ctermfg=223 ctermbg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
+    highlight StatusLineNC   cterm=NONE ctermfg=108 ctermbg=236 guifg=#7f9f7f guibg=#2f2f2f gui=NONE
+endif

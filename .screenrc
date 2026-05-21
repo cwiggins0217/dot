@@ -1,0 +1,71 @@
+# ~/.screenrc
+
+startup_message off
+vbell off
+defscrollback 5000
+autodetach on
+shelltitle "$ |bash"
+defutf8 on
+term screen-256color
+defbce off
+
+altscreen on
+nonblock on
+deflogin on
+activity "⚠ activity in %n:%t"
+bell_msg "⛔ bell in %n:%t"
+silencewait 15
+
+screen -xRR admin
+screen -t bash
+screen -t
+screen -xRR logs
+screen -xRR ops
+screen -xRR misc
+
+bind c screen
+bind ^c screen
+bind k kill
+bind K remove
+bind ^k kill
+
+bind j focus down
+bind k focus up
+bind h focus left
+bind l focus right
+
+bind - split
+bind | split -v
+bind x remove
+bind X only
+
+bind V eval "split -v" "focus" "stuff \"screen -X chdir \$PWD; screen -t shell^M\""
+bind S eval "split"    "focus" "stuff \"screen -X chdir \$PWD; screen -t shell^M\""
+
+bind 0 select 0
+bind 1 select 1
+bind 2 select 2
+bind 3 select 3
+bind 4 select 4
+bind 5 select 5
+bind 6 select 6
+bind 7 select 7
+bind 8 select 8
+bind 9 select 9
+
+hardstatus alwayslastline
+hardstatus string '%{= 0;2} %S %{= 2;0} :: %{= 2;0}%u@%H%{= 2;0} :: %{= 2;0}%Y-%m-%d %c%{= 2;0} :: %{= 2;0}%-w%{= 2;0}(%n:%t)%{= 2;0}%+w'
+caption splitonly "%{= kK}%3n %{= kG}%t %{= kK}:: %{= kC}%c "
+
+escape ^Aa
+bind a wall "NODE ACTIVE"
+
+bind r source $HOME/.screenrc
+
+bind P eval "stuff \"htop^M\""
+bind N eval "stuff \"btop^M\""
+
+bind T eval "stuff \"tail -f /var/log/syslog^M\""
+
+windowlist string "%n %t"
+windowlist title " windows "
