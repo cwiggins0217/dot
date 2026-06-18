@@ -216,6 +216,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'rwxrob/vim-pandoc-syntax-simple'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
+        Plug 'romainl/apprentice'
 
         "thinking about dropping neovim altogether... too slow
         " coc requires nvim 0.8
@@ -306,13 +307,17 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         au FileType go nmap <leader>m ilog.Print("made")<CR><ESC>
         au FileType go nmap <leader>n iif err != nil {return err}<CR><ESC>
 
-        if has('nvim')
-            syntax on
-            set background=dark
-            colorscheme poimandres
-            endif
+        syntax on
+        set background=dark
+        colorscheme apprentice
+        hi clear SignColumn
+        hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
+        hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
+        hi Normal ctermbg=NONE guibg=NONE
+        hi CursorLineNr ctermbg=NONE guibg=NONE
+        hi ColorColumn cterm=NONE
 
-        elseif has("syntax")
+ elseif has("syntax")
     syntax on
     set background=dark
     colorscheme habamax
