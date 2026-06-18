@@ -2,10 +2,7 @@
 case $- in
 	*i*) ;;
 	*) return;;
-esac
-# ==============================================================================
-
-
+esac 
 # ============================= Misc Options ===================================
 autoload -Uz compinit && compinit
 autoload -U colors && colors
@@ -22,9 +19,6 @@ setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
 setopt SHARE_HISTORY
 setopt HIST_FIND_NO_DUPS
-# ==============================================================================
-
-
 # ============================== VI Mode =======================================
 bindkey -v # you know, cuz L33T H4X0R
 # ==============================================================================
@@ -48,7 +42,7 @@ setopt PROMPT_SUBST
 # colors
 FG_BLUE="%F{4}"     # structure
 FG_CYAN="%F{6}"     # identity
-FG_GREEN="%F{82}"    # success
+FG_GREEN="%F{40}"    # success
 FG_YELLOW="%F{3}"  # warning/root
 FG_ERR="%F{196}"    # error
 FG_RED="%F{9}"     # ui red
@@ -91,7 +85,7 @@ function zle-keymap-select {
     vicmd)
       MODE="${FG_DIM}N%f" ;;     # NORMAL  (dim)
     viins|main)
-      MODE="%F{226}I%f" ;;     # INSERT  (yellow)
+      MODE="%F{220}I%f" ;;     # INSERT  (yellow)
     visual)
       MODE="%F{5}V%f" ;;     # VISUAL  (magenta)
     replace)
@@ -172,6 +166,7 @@ export LC_COLLATE=C
 export CFLAGS="-Wall -Wextra -Werror -O2 -g -finstrument-functions"
 export PULSE_SERVER=tcp:127.0.0.1 # XXX This is a hack to have audio on wsl2
 export PAGER='less'
+export NNN_FIFO=/tmp/nnn.fifo
 # ==================================================================================================
 
 
@@ -206,7 +201,7 @@ alias dot='cd $DOTFILES'
 alias scripts='cd $SCRIPTS'
 alias snippets='cd $SNIPPETS'
 alias ls='ls -h --color=auto'
-alias free='free-h'
+#alias free='free -h'
 alias df='df -h'
 alias diff='diff --color'
 alias temp='cd $(mktemp -d)'
@@ -240,3 +235,10 @@ PERL5LIB="/home/cwiggins/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5
 PERL_LOCAL_LIB_ROOT="/home/cwiggins/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/cwiggins/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/cwiggins/perl5"; export PERL_MM_OPT;
+
+nnn_cd () {
+    if ! [ -z "$NNN_PIPE" ]; then
+        printf "%s\0" "0c${PWD}" > "${NNN_PIPE}" !&
+    fi
+}
+trap nnn_cd EXIT

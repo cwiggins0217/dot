@@ -1,4 +1,4 @@
-" ======================================= BEGIN CONFIG =============================================
+" ======================================= BEGIN CONFIG ============================================0
 " checks for vim-tiny (vi)
 if has("eval")
         let skip_defaults_vim = 1
@@ -197,6 +197,7 @@ nnoremap <leader>e :Explore<CR>
 nnoremap <leader>pv :Vexplore<CR>
 nnoremap <leader>pl :Lexplore<CR>
 nnoremap <leader>r :set number! relativenumber!<CR>
+nnoremap <Esc><Esc> :noh<CR>
 
 if filereadable(expand("/usr/local/bin/obnc"))
     au BufRead,BufNewFile *.Mod set filetype=oberon
@@ -215,23 +216,19 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'rwxrob/vim-pandoc-syntax-simple'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
-        Plug 'jnurmine/zenburn'
-        Plug 'vim-erlang/vim-erlang-runtime'
-        Plug 'vim-erlang/vim-erlang-compiler'
-        Plug 'vim-erlang/vim-erlang-omnicomplete'
-        Plug 'vim-erlang/vim-erlang-tags'
 
         "thinking about dropping neovim altogether... too slow
         " coc requires nvim 0.8
-        "if has('nvim-0.8')
-            "Plug 'neoclide/coc.nvim', {'branch': 'release'}
-        "endif
+        if has('nvim-0.8')
+            Plug 'neoclide/coc.nvim', {'branch': 'release'}
+        endif
 
         " treesitter rewrite requires absolute lates nvim for some reason
-        "if has('nvim-0.11')
-            "Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-            "Plug 'rwxrob/nvim-treesitter-textobjects'
-        "endif
+        if has('nvim-0.11')
+            Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+            Plug 'rwxrob/nvim-treesitter-textobjects'
+            Plug 'olivercederborg/poimandres.nvim'
+        endif
 
         if has('nvim')
             Plug 'xolox/vim-misc'
@@ -263,6 +260,12 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
             \}
         let g:ale_linter_aliases = {'bash': 'sh'}
         let g:ale_perl_perlcritic_options = '--severity 3'
+
+
+        "improves performance
+        let g:ale_lint_on_text_changed = 'never'
+        let g:ale_lint_on_insert_leave = 1
+        let g:ale_cache_executable_check_failures = 1
 
         let g:ale_fixers = {
             \'sh': ['shfmt'],
@@ -303,23 +306,20 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         au FileType go nmap <leader>m ilog.Print("made")<CR><ESC>
         au FileType go nmap <leader>n iif err != nil {return err}<CR><ESC>
 
-    endif
+        if has('nvim')
+            syntax on
+            set background=dark
+            colorscheme poimandres
+            endif
 
-" colorscheme tweakz
-if has("syntax")
+        elseif has("syntax")
     syntax on
     set background=dark
-    colorscheme zenburn
+    colorscheme habamax
     hi clear SignColumn
     hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
     hi CursorLineNr ctermbg=NONE guibg=NONE
     hi ColorColumn cterm=NONE
-
-    highlight StatusLineMode cterm=bold ctermfg=223 ctermbg=238 guifg=#f0dfaf guibg=#4f4f4f gui=bold
-    highlight StatusLineFile cterm=NONE ctermfg=188 ctermbg=237 guifg=#dcdccc guibg=#3f3f3f gui=NONE
-    highlight StatusLineInfo cterm=NONE ctermfg=144 ctermbg=237 guifg=#9fafaf guibg=#3f3f3f gui=NONE
-    highlight StatusLineWarn cterm=bold ctermfg=223 ctermbg=239 guifg=#f0dfaf guibg=#5f5f5f gui=bold
-    highlight StatusLineNC   cterm=NONE ctermfg=108 ctermbg=236 guifg=#7f9f7f guibg=#2f2f2f gui=NONE
 endif
