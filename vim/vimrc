@@ -171,13 +171,13 @@ set statusline+=%#StatusLineMode#
 set statusline+=\ %{ModeLabel()}
 set statusline+=\ %#StatusLineFile#
 set statusline+=\ %<\ %{FileLabel()}%{Flags()}%{GitBranchStatus()}
+set statusline+=\ %2p%%
 set statusline+=%=
 set statusline+=%#StatusLineInfo#
-set statusline+=\ %{FileTypeLabel()}
+"set statusline+=\ %{FileTypeLabel()}
 set statusline+=\ %#StatusLineWarn#
-set statusline+=\ %2p%%
-set statusline+=\ %#StatusLineInfo#
-set statusline+=\ %3l:%-2c
+"set statusline+=\ %#StatusLineInfo#
+"set statusline+=\ %3l:%-2c
 " =========================================== netrw ================================================
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
