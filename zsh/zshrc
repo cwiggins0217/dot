@@ -218,7 +218,7 @@ alias ops='tmux-ops'
 
                                                   # FIXME change path if needed
 #source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+#source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
                 # autostart tmux (attach if running, create new session if not)
 #if [[ -z "$TMUX" ]]; then

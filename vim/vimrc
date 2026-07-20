@@ -1,9 +1,12 @@
-" ======================================= BEGIN CONFIG ============================================0
-" checks for vim-tiny (vi)
+" ======================================= BEGIN CONFIG =============================================
+"" checks for vim-tiny (vi)
 if has("eval")
         let skip_defaults_vim = 1
 endif
-" ======================================= basic tweaks =============================================
+
+"""""""""""""""""""""
+" some basic tweaks "
+"""""""""""""""""""""
 set nocompatible
 set autoindent
 set autowrite
@@ -18,34 +21,29 @@ set smarttab
 set noignorecase
 set noerrorbells
 set visualbell
-set cursorline
-set number
-set relativenumber
-" ============================== misc stuff, makes vim less annoying ===============================
+
+
+"""""""""""""""""""""""""""""""""""""""
+" misc stuff, makes vim less annoying "
+"""""""""""""""""""""""""""""""""""""""
 if v:version >=  800
-    set nofixendofline
-    set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
-    set listchars+=eol:↩
-    set foldmethod=manual
-    set nofoldenable
+        set nofixendofline
+        set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
+        set listchars+=eol:↩
+        set foldmethod=manual
+        set nofoldenable
 endif
 
 match Visual '\s\+$'
 
-if &term =~ '256color'
-    set t_ut=
-endif
 
-" this works with and screen
-" notermguicolors is for solarized
-"set notermguicolors
 if has('termguicolors')
     set termguicolors
 endif
 set t_Co=256
 " ====================================== more misc stuff ===========================================
-set textwidth=100           " this is more modern, might think it's stupid later and change my mind
-set colorcolumn=101                                             " already leaning toward stupid tbh
+set textwidth=80           " this is more modern, might think it's stupid later and change my mind
+set colorcolumn=81                                             " already leaning toward stupid tbh
 set spc=
 set expandtab
 set nobackup                                                    " because I like living on the edge
@@ -94,90 +92,29 @@ fun! JumpToDef()
     endif
 endf
 " ===================================== statusline =================================================
-set laststatus=2
-function! Statusline() abort
-  if win_getid() != win_getid(winnr())
-    return '%#StatusLineNC# %f %=%y '
-  endif
+function! Gitbranch()
+    let branch = system("git branch --show-current 2>/dev/null")
+    if v:shell_error != 0
+        return ''
+    endif
 
-  return '%#StatusLineMode# %{ModeLabel()} ' .
-        \ '%#StatusLineFile# %< %{FileLabel()}%{Flags()} ' .
-        \ '%{GitBranch()!='''?' '.GitBranch().' ':''}' .
-        \ '%=' .
-        \ '%#StatusLineInfo# %{FileTypeLabel()} ' .
-        \ '%#StatusLineWarn# %2p%% ' .
-        \ '%#StatusLineInfo# %3l:%-2c '
+    let branch = substitute(branch, '\n', '', '')
+    return branch ==# '' ? '' : ' | ' . branch
 endfunction
 
-function! ModeLabel() abort
-  let l:m = mode()
-  return get({
-        \ 'n': 'NORMAL',
-        \ 'i': 'INSERT',
-        \ 'R': 'REPLACE',
-        \ 'v': 'VISUAL',
-        \ 'V': 'V-LINE',
-        \ "\<C-v>": 'V-BLOCK',
-        \ 'c': 'COMMAND',
-        \ 't': 'TERMINAL',
-        \ }, l:m, toupper(l:m))
-endfunction
+set laststatus=3
 
-function! FileLabel() abort
-  if &buftype ==# 'help'
-    return 'help:' . expand('%:t')
-  elseif &buftype ==# 'terminal'
-    return 'terminal'
-  elseif expand('%') ==# ''
-    return '[No Name]'
-  endif
-  return pathshorten(expand('%:.'))
-endfunction
-
-function! FileTypeLabel() abort
-  return empty(&filetype) ? 'text' : &filetype
-endfunction
-
-function! Flags() abort
-  return (&readonly ? ' RO' : '') . (&modified ? ' +' : '')
-endfunction
-
-function! GitBranch() abort
-  let l:gitdir = finddir('.git', expand('%:p:h') . ';')
-  if empty(l:gitdir)
-    return ''
-  endif
-
-  let l:headfile = l:gitdir . '/HEAD'
-  if !filereadable(l:headfile)
-    return ''
-  endif
-
-  let l:head = get(readfile(l:headfile), 0, '')
-  if l:head =~# '^ref: '
-    return substitute(l:head, '^ref: refs/heads/', '', '')
-  endif
-
-  return '[detached]'
-endfunction
-
-function! GitBranchStatus() abort
-  let l:branch = GitBranch()
-  return empty(l:branch) ? '' : '   ' . l:branch
-endfunction
-
-set statusline=
-set statusline+=%#StatusLineMode#
-set statusline+=\ %{ModeLabel()}
-set statusline+=\ %#StatusLineFile#
-set statusline+=\ %<\ %{FileLabel()}%{Flags()}%{GitBranchStatus()}
-set statusline+=\ %2p%%
+set statusline=\ 
+set statusline+=%<%f%m%r
+set statusline+=\ %y
+set statusline+=\ %{&filetype}
+set statusline+=\ %{&fileencoding}
+set statusline+=\ %{&fileformat}
 set statusline+=%=
-set statusline+=%#StatusLineInfo#
-"set statusline+=\ %{FileTypeLabel()}
-set statusline+=\ %#StatusLineWarn#
-"set statusline+=\ %#StatusLineInfo#
-"set statusline+=\ %3l:%-2c
+set statusline+=%{Gitbranch()}
+set statusline+=\ %p%%
+set statusline+=\ %l:%c
+
 " =========================================== netrw ================================================
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
@@ -216,19 +153,18 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'rwxrob/vim-pandoc-syntax-simple'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
-        Plug 'romainl/apprentice'
+        Plug 'huyvohcmc/atlas.vim'
 
-        "thinking about dropping neovim altogether... too slow
-        " coc requires nvim 0.8
+       " "thinking about dropping neovim altogether... too slow
+       " " coc requires nvim 0.8
         if has('nvim-0.8')
             Plug 'neoclide/coc.nvim', {'branch': 'release'}
         endif
 
-        " treesitter rewrite requires absolute lates nvim for some reason
+       " " treesitter rewrite requires absolute latest nvim for some reason
         if has('nvim-0.11')
             Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
             Plug 'rwxrob/nvim-treesitter-textobjects'
-            Plug 'olivercederborg/poimandres.nvim'
         endif
 
         if has('nvim')
@@ -247,11 +183,12 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         endf
 
         set signcolumn=yes
+
         let g:ale_set_signs = 1
         let g:ale_sign_info = '✨'
         let g:ale_sign_error = '🔥'
         let g:ale_sign_warning = '❗️'
-         let g:ale_sign_hint = '💡'
+        let g:ale_sign_hint = '💡'
 
         let g:ale_linters = {
             \'go': ['gometalinter', 'gofmt', 'gobuild'],
@@ -284,7 +221,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
 
         " golang
         let g:go_fmt_fail_silently = 0
-        "let g:go_fmt_options = '-s'
+        let g:go_fmt_options = '-s'
         let g:go_fmt_command = 'goimports'
         let g:go_fmt_autosave = 1
         let g:go_gopls_enabled = 1
@@ -306,25 +243,21 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         " common go macros
         au FileType go nmap <leader>m ilog.Print("made")<CR><ESC>
         au FileType go nmap <leader>n iif err != nil {return err}<CR><ESC>
+    endif
 
-        syntax on
-        set background=dark
-        colorscheme apprentice
-        hi clear SignColumn
-        hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
-        hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
-        hi Normal ctermbg=NONE guibg=NONE
-        hi CursorLineNr ctermbg=NONE guibg=NONE
-        hi ColorColumn cterm=NONE
-
- elseif has("syntax")
+if has("syntax")
     syntax on
     set background=dark
-    colorscheme habamax
+    colorscheme quiet
     hi clear SignColumn
     hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
     hi CursorLineNr ctermbg=NONE guibg=NONE
     hi ColorColumn cterm=NONE
+    hi Statusline ctermfg=Green ctermbg=NONE guifg=Green guibg=NONE
+    hi MsgArea guifg=Black guibg=Green ctermbg=Green ctermfg=Black
+    hi ErrorMsg ctermfg=Red guifg=Red
+    hi MoreMsg ctermfg=Yellow guifg=Yellow
+    hi ModeMsg ctermfg=Cyan guifg=Cyan
 endif
