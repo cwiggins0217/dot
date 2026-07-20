@@ -1,122 +1,273 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+#!/bin/bash
+# shellcheck disable=SC1090,SC1091
 
-# If not running interactively, don't do anything
 case $- in
-    *i*) ;;
-      *) return;;
+    *i*) ;;                                            # interactive
+    *) return ;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth
 
-# append to the history file, don't overwrite it
-shopt -s histappend
+# ============== Helper functions ================
+_have() { type "$1" &>/dev/null; }
+_source_if() { [[ -r "$1" ]] && source "$1"; }
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+# ============== Clear screen ====================
+bind - '"\C-l":clear'
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
+# ============== ENV Vars =========================
+export LANG=en_US.UTF-8
+export USER="${USER:-$(whoami)}"
+export GITUSER="$USER"
+export TZ=America/Chicago
+export REPOS="$HOME/REPOS"
+export GHREPOS="$REPOS/github.com/$GITUSER"
+export DOTFILES="$GHREPOS/dot"
+export HELP_BROWSER=w3m                                # experimenting with w3m over lynx for now
+export DESKTOP="$HOME/DESKTOP"
+export DOCUMENTS="$HOME/Documents"
+export CLICOLOR=1
+export HRULEWIDTH=73
+export GOPATH="$HOME/.local/go"
+export GOBIN="$HOME/.local/bin"
+export GOPROXY=direct
+export CGO_ENABLED=0
+export PYTHONDONTWRITEBYTECODE=2
+export LC_COLLATE=C
+export CFLAGS="-Wall -Wextra -O0 -g -fsanitize=address -fno-omit-frame-pointer -finstrument-functions"
+export SCRIPTS=~/Scripts/
 
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
+[[ -d /.vim/spell ]]  && export VIMSPELL=("$HOME/.vim/spell/*.add")
 
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# =========== PGP ==================================
+GPG_TTY=$(tty)
+export GPG_TTY
 
-# set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
-fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+if _have dircolors; then
+    if [[ -r "$HOME/.dircolors" ]]; then
+        eval "$(dircolors -b "$HOME/.dircolors")"
     else
-	color_prompt=
+        eval "$(dircolors -b)"
     fi
 fi
 
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
+#============= Path ============================
+pathappend() {
+	declare arg
+	for arg in "$@"; do
+		test -d "$arg" || continue
+		PATH=${PATH//":$arg:"/:}
+		PATH=${PATH/#"$arg:"/}
+		PATH=${PATH/%":$arg"/}
+		export PATH="${PATH:+"$PATH:"}$arg"
+	done
+} && export -f pathappend
 
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+pathprepend() {
+	for arg in "$@"; do
+		test -d "$arg" || continue
+		PATH=${PATH//:"$arg:"/:}
+		PATH=${PATH/#"$arg:"/}
+		PATH=${PATH/%":$arg"/}
+		export PATH="$arg${PATH:+":${PATH}"}"
+	done
+} && export -f pathprepend
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
+# remember last arg will be first in path
+pathprepend \
+	"$HOME/.local/bin" \
+	"$HOME/.local/go/bin" \
+	"$GHREPOS/cmd-"* \
+	/usr/local/go/bin \
+	/usr/local/opt/openjdk/bin \
+	/usr/local/bin \
+	/opt/homebrew/bin \
+	"$SCRIPTS"
 
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
+pathappend \
+	/usr/local/opt/coreutils/libexec/gnubin \
+	'/mnt/c/Windows' \
+	/usr/local/bin \
+	/usr/local/sbin \
+	/usr/local/games \
+	/usr/games \
+	/usr/sbin \
+	/usr/bin \
+	/snap/bin \
+	/sbin \
+	/bin
 
-# colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+# ------------------------------ cdpath ------------------------------
 
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+export CDPATH=".:$GHREPOS:$DOTFILES:$REPOS:/media/$USER:$HOME"
 
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+# ------------------------ bash shell options ------------------------
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+# shopt is for BASHOPTS, set is for SHELLOPTS
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
-. "$HOME/.cargo/env"
+shopt -s checkwinsize # enables $COLUMNS and $ROWS
+shopt -s expand_aliases
+shopt -s globstar
+shopt -s dotglob
+shopt -s extglob
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+# -------------------------- stty annoyances -------------------------
+
+stty -ixon # disable control-s/control-q tty flow control
+
+# ------------------------------ history -----------------------------
+
+export HISTCONTROL=ignoreboth
+export HISTSIZE=5000
+export HISTFILESIZE=10000
+
+set -o vi
+shopt -s histappend
+
+# --------------------------- smart prompt ---------------------------
+#                 (keeping in bashrc for portability)
+
+PROMPT_LONG=20
+PROMPT_MAX=95
+PROMPT_AT=@
+
+__ps1() {
+	local P='$' dir="${PWD##*/}" B countme short long double \
+		r='\[\e[31m\]' h='\[\e[34m\]' \
+		u='\[\e[33m\]' p='\[\e[34m\]' w='\[\e[35m\]' \
+		b='\[\e[36m\]' x='\[\e[0m\]' \
+		g="\[\033[38;2;90;82;76m\]"
+
+	[[ $EUID == 0 ]] && P='#' && u=$r && p=$u # root
+	[[ $PWD = / ]] && dir=/
+	[[ $PWD = "$HOME" ]] && dir='~'
+
+	B=$(git branch --show-current 2>/dev/null)
+	[[ $dir = "$B" ]] && B=.
+	countme="$USER$PROMPT_AT$(hostname):$dir($B)\$ "
+
+	[[ $B == master || $B == main ]] && b="$r"
+	[[ -n "$B" ]] && B="$g($b$B$g)"
+
+	short="$u\u$g$PROMPT_AT$h\h$g:$w$dir$B$p$P$x "
+	long="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir$B\n${g}╚$p$P$x "
+	double="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir\n${g}║$B\n${g}╚$p$P$x "
+
+	if ((${#countme} > PROMPT_MAX)); then
+		PS1="$double"
+	elif ((${#countme} > PROMPT_LONG)); then
+		PS1="$long"
+	else
+		PS1="$short"
+	fi
+
+	if _have tmux && [[ -n "$TMUX" ]]; then
+		tmux rename-window "$(wd)"
+	fi
+}
+
+wd() {
+	dir="${PWD##*/}"
+	parent="${PWD%"/${dir}"}"
+	parent="${parent##*/}"
+	echo "$parent/$dir"
+} && export wd
+
+PROMPT_COMMAND="__ps1"
+
+# ----------------------------- keyboard -----------------------------
+
+# only works if you have X and are using graphic Linux desktop
+
+_have setxkbmap && test -n "$DISPLAY" &&
+	setxkbmap -option ctrl:swapcaps &>/dev/null
+
+# ------------------------------ aliases -----------------------------
+#      (use exec scripts instead, which work from vim and subprocs)
+
+unalias -a
+alias todo='vi ~/.todo'
+alias ip='ip -c'
+alias '?'=gpt
+alias '??'=duck
+alias '???'=google
+alias dot='cd $DOTFILES'
+alias scripts='cd $SCRIPTS'
+alias snippets='cd $SNIPPETS'
+alias ls='ls -h --color=auto'
+alias free='free -h'
+alias tree='tree -a'
+alias df='df -h'
+alias chmox='chmod +x'
+alias diff='diff --color'
+alias sshh='sshpass -f $HOME/.sshpass ssh '
+alias temp='cd $(mktemp -d)'
+alias view='vi -R' # which is usually linked to vim
+alias clear='printf "\e[H\e[2J"'
+alias c='printf "\e[H\e[2J"'
+alias neo="neo -D -c gold"
+alias more="less"
+alias gitl="git log -n 5 --graph --decorate --oneline"
+alias gp="git push"
+alias gptags="git push origin --tags"
+alias cur="vi ~/.currently"
+
+set-editor() {
+	export EDITOR="$1"
+	export VISUAL="$1"
+	export GH_EDITOR="$1"
+	export GIT_EDITOR="$1"
+	alias vi="\$EDITOR"
+}
+_have "vim" && set-editor vi
+_have "nvim" && set-editor nvim
+
+# ----------------------------- functions ----------------------------
+
+envx() {
+	local envfile="${1:-"$HOME/.env"}"
+	[[ ! -e "$envfile" ]] && echo "$envfile not found" && return 1
+	while IFS= read -r line; do
+		name=${line%%=*}
+		value=${line#*=}
+		[[ -z "${name}" || $name =~ ^# ]] && continue
+		export "$name"="$value"
+	done <"$envfile"
+} && export -f envx
+
+[[ -e "$HOME/.env" ]] && envx "$HOME/.env"
+
+new-from() {
+	local template="$1"
+	local name="$2"
+	! _have gh && echo "gh command not found" && return 1
+	[[ -z "$name" ]] && echo "usage: $0 <name>" && return 1
+	[[ -z "$GHREPOS" ]] && echo "GHREPOS not set" && return 1
+	[[ ! -d "$GHREPOS" ]] && echo "Not found: $GHREPOS" && return 1
+	cd "$GHREPOS" || return 1
+	[[ -e "$name" ]] && echo "exists: $name" && return 1
+	gh repo create -p "$template" --public "$name"
+	gh repo clone "$name"
+	cd "$name" || return 1
+} && export -f new-from
+
+clone() {
+	local repo="$1" user
+	local repo="${repo#https://github.com/}"
+	local repo="${repo#git@github.com:}"
+	if [[ $repo =~ / ]]; then
+		user="${repo%%/*}"
+	else
+		user="$GITUSER"
+		[[ -z "$user" ]] && user="$USER"
+	fi
+	local name="${repo##*/}"
+	local userd="$REPOS/github.com/$user"
+	local path="$userd/$name"
+	[[ -d "$path" ]] && cd "$path" && return
+	mkdir -p "$userd"
+	cd "$userd"
+	echo gh repo clone "$user/$name" -- --recurse-submodule
+	gh repo clone "$user/$name" -- --recurse-submodule
+	cd "$name"
+} && export -f clone
