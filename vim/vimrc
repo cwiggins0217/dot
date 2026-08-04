@@ -153,7 +153,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'rwxrob/vim-pandoc-syntax-simple'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
-        Plug 'huyvohcmc/atlas.vim'
+		Plug 'jnurmine/zenburn'
 
        " "thinking about dropping neovim altogether... too slow
        " " coc requires nvim 0.8
@@ -170,7 +170,12 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
-        endif
+
+            " FIXME checkhealth complains about not finding perl executable
+            let g:loaded_perl_provider = 0
+            " FIXME checkhealth also complains about ruby host
+            let g:loaded_ruby_provider = 0
+            endif
 
   call plug#end()
 
@@ -247,16 +252,16 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
 
 if has("syntax")
     syntax on
-    set background=dark
-    colorscheme quiet
+    set background=light
+    colorscheme zenburn
     hi clear SignColumn
     hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
     hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
     hi Normal ctermbg=NONE guibg=NONE
     hi CursorLineNr ctermbg=NONE guibg=NONE
     hi ColorColumn cterm=NONE
-    hi Statusline ctermfg=Green ctermbg=NONE guifg=Green guibg=NONE
-    hi MsgArea guifg=Black guibg=Green ctermbg=Green ctermfg=Black
+    hi Statusline ctermfg=White ctermbg=Green guifg=White guibg=Green
+    hi MsgArea guifg=Green guibg=NONE ctermbg=NONE ctermfg=Green
     hi ErrorMsg ctermfg=Red guifg=Red
     hi MoreMsg ctermfg=Yellow guifg=Yellow
     hi ModeMsg ctermfg=Cyan guifg=Cyan
