@@ -1,4 +1,4 @@
-" ======================================= BEGIN CONFIG =============================================
+zenburn" ======================================= BEGIN CONFIG ===========================================0
 "" checks for vim-tiny (vi)
 if has("eval")
         let skip_defaults_vim = 1
@@ -36,8 +36,7 @@ endif
 
 match Visual '\s\+$'
 
-
-if has('termguicolors')
+if has('termguicolors') " comment this out if using screen
     set termguicolors
 endif
 set t_Co=256
@@ -104,7 +103,7 @@ endfunction
 
 set laststatus=3
 
-set statusline=\ 
+set statusline=\
 set statusline+=%<%f%m%r
 set statusline+=\ %y
 set statusline+=\ %{&filetype}
@@ -153,13 +152,12 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'rwxrob/vim-pandoc-syntax-simple'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
-		Plug 'jnurmine/zenburn'
 
        " "thinking about dropping neovim altogether... too slow
        " " coc requires nvim 0.8
-        if has('nvim-0.8')
-            Plug 'neoclide/coc.nvim', {'branch': 'release'}
-        endif
+        "if has('nvim-0.8')
+        "    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+        "endif
 
        " " treesitter rewrite requires absolute latest nvim for some reason
         if has('nvim-0.11')
@@ -170,6 +168,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
+            Plug 'talha-akram/noctis.nvim'
 
             " FIXME checkhealth complains about not finding perl executable
             let g:loaded_perl_provider = 0
@@ -251,18 +250,18 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     endif
 
 if has("syntax")
-    syntax on
-    set background=light
-    colorscheme zenburn
-    hi clear SignColumn
-    hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
-    hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
-    hi Normal ctermbg=NONE guibg=NONE
-    hi CursorLineNr ctermbg=NONE guibg=NONE
-    hi ColorColumn cterm=NONE
-    hi Statusline ctermfg=White ctermbg=Green guifg=White guibg=Green
-    hi MsgArea guifg=Green guibg=NONE ctermbg=NONE ctermfg=Green
-    hi ErrorMsg ctermfg=Red guifg=Red
-    hi MoreMsg ctermfg=Yellow guifg=Yellow
-    hi ModeMsg ctermfg=Cyan guifg=Cyan
+	syntax on
+	set background=dark
+	colorscheme quiet	
+    	hi clear SignColumn
+    	"hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
+    	hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
+    	hi Normal ctermbg=NONE guibg=NONE
+    	hi CursorLineNr ctermbg=NONE guibg=NONE
+    	hi ColorColumn cterm=NONE
+    	hi Statusline ctermfg=White ctermbg=NONE guifg=White guibg=NONE
+    	"hi MsgArea guifg=White guibg=Green ctermbg=Green ctermfg=White
+    	hi ErrorMsg ctermfg=Red guifg=Red
+    	hi MoreMsg ctermfg=Yellow guifg=Yellow
+    	hi ModeMsg ctermfg=Cyan guifg=Cyan
 endif

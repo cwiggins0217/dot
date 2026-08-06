@@ -42,9 +42,9 @@ setopt PROMPT_SUBST
 # colors
 FG_BLUE="%F{4}"     # structure
 FG_CYAN="%F{6}"     # identity
-FG_GREEN="%F{40}"    # success
+FG_GREEN="%F{2}"    # success
 FG_YELLOW="%F{3}"  # warning/root
-FG_ERR="%F{196}"    # error
+FG_ERR="%F{198}"    # error
 FG_RED="%F{9}"     # ui red
 FG_DIM="%F{245}"     # subtle
 RESET="%f"
@@ -115,7 +115,7 @@ function zle-line-init {
 zle -N zle-line-init
 
 PROMPT=' $(exit_status)'\
-'${FG_CYAN}%n@%m${RESET} '\
+'${FG_CYAN}%n${FG_RED}@${FG_BLUE}%m${RESET} '\
 '${FG_DIM}%~${RESET}'\
 '$(git_branch) '\
 '${MODE} $(root_indicator) '
@@ -218,7 +218,7 @@ alias ops='tmux-ops'
 
                                                   # FIXME change path if needed
 #source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
                 # autostart tmux (attach if running, create new session if not)
 #if [[ -z "$TMUX" ]]; then
@@ -227,8 +227,6 @@ alias ops='tmux-ops'
 
 # Load GitHub Copilot token from gnome-keyring
 export GH_TOKEN=$(secret-tool lookup service copilot-cli user cwiggins0217 2>/dev/null)
-
-source /home/cwiggins/.config/broot/launcher/bash/br
 
 PATH="/home/cwiggins/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/cwiggins/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
