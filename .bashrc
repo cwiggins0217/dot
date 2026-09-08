@@ -1,0 +1,275 @@
+#!/bin/bash
+# shellcheck disable=SC1090,SC1091
+
+case $- in
+*i*) ;; # interactive
+*) return ;;
+esac
+
+# ============== Helper functions ================
+_have() { type "$1" &>/dev/null; }
+_source_if() { [[ -r "$1" ]] && source "$1"; }
+
+# ============== Clear screen ====================
+bind '"\C-l":clear-screen'
+
+# ============== ENV Vars =========================
+export LANG=en_US.UTF-8
+export USER="${USER:-$(whoami)}"
+export GITUSER="$USER"
+export TZ=America/Chicago
+export REPOS="$HOME/REPOS"
+export GHREPOS="$REPOS/github.com/$GITUSER"
+export DOTFILES="$GHREPOS/dot"
+export HELP_BROWSER=w3m # experimenting with w3m over lynx for now
+export DESKTOP="$HOME/DESKTOP"
+export DOCUMENTS="$HOME/Documents"
+export CLICOLOR=1
+export HRULEWIDTH=73
+export GOPATH="$HOME/.local/go"
+export GOBIN="$HOME/.local/bin"
+export GOPROXY=direct
+export CGO_ENABLED=0
+export PYTHONDONTWRITEBYTECODE=2
+export LC_COLLATE=C
+export CFLAGS="-Wall -Wextra -O2 -g -fno-omit-frame-pointer -finstrument-functions"
+export SCRIPTS=~/Scripts/
+
+[[ -d /.vim/spell ]] && export VIMSPELL=("$HOME/.vim/spell/*.add")
+
+# =========== PGP ==================================
+GPG_TTY=$(tty)
+export GPG_TTY
+
+if _have dircolors; then
+	if [[ -r "$HOME/.dircolors" ]]; then
+		eval "$(dircolors -b "$HOME/.dircolors")"
+	else
+		eval "$(dircolors -b)"
+	fi
+fi
+
+#============= Path ============================
+pathappend() {
+	declare arg
+	for arg in "$@"; do
+		test -d "$arg" || continue
+		PATH=${PATH//":$arg:"/:}
+		PATH=${PATH/#"$arg:"/}
+		PATH=${PATH/%":$arg"/}
+		export PATH="${PATH:+"$PATH:"}$arg"
+	done
+} && export -f pathappend
+
+pathprepend() {
+	for arg in "$@"; do
+		test -d "$arg" || continue
+		PATH=${PATH//:"$arg:"/:}
+		PATH=${PATH/#"$arg:"/}
+		PATH=${PATH/%":$arg"/}
+		export PATH="$arg${PATH:+":${PATH}"}"
+	done
+} && export -f pathprepend
+
+# remember last arg will be first in path
+pathprepend \
+	"$HOME/.local/bin" \
+	"$HOME/.local/go/bin" \
+	"$GHREPOS/cmd-"* \
+	/usr/local/go/bin \
+	/usr/local/opt/openjdk/bin \
+	/usr/local/bin \
+	/opt/homebrew/bin \
+	"$SCRIPTS"
+
+pathappend \
+	/usr/local/opt/coreutils/libexec/gnubin \
+	'/mnt/c/Windows' \
+	/usr/local/bin \
+	/usr/local/sbin \
+	/usr/local/games \
+	/usr/games \
+	/usr/sbin \
+	/usr/bin \
+	/snap/bin \
+	/sbin \
+	/bin
+
+# ------------------------------ cdpath ------------------------------
+
+export CDPATH=".:$GHREPOS:$DOTFILES:$REPOS:/media/$USER:$HOME"
+
+# ------------------------ bash shell options ------------------------
+
+# shopt is for BASHOPTS, set is for SHELLOPTS
+
+shopt -s checkwinsize # enables $COLUMNS and $ROWS
+shopt -s expand_aliases
+shopt -s globstar
+shopt -s dotglob
+shopt -s extglob
+
+# -------------------------- stty annoyances -------------------------
+
+stty -ixon # disable control-s/control-q tty flow control
+
+# ------------------------------ history -----------------------------
+
+export HISTCONTROL=ignoreboth
+export HISTSIZE=5000
+export HISTFILESIZE=10000
+
+set -o vi
+shopt -s histappend
+
+# --------------------------- smart prompt ---------------------------
+#                 (keeping in bashrc for portability)
+# This was lifted from Rob Muhlestein rwxrob.github.io
+
+PROMPT_LONG=20
+PROMPT_MAX=95
+PROMPT_AT=@
+
+__ps1() {
+	local P='$' dir="${PWD##*/}" B countme short long double \
+		r='\[\e[39m\]' h='\[\e[38m\]' \
+		u='\[\e[37m\]' p='\[\e[36m\]' w='\[\e[37m\]' \
+		b='\[\e[36m\]' x='\[\e[0m\]' \
+		g="\[\033[38;2;90;82;76m\]"
+
+	[[ $EUID == 0 ]] && P='#' && u=$r && p=$u # root
+	[[ $PWD = / ]] && dir=/
+	[[ $PWD = "$HOME" ]] && dir='~'
+
+	B=$(git branch --show-current 2>/dev/null)
+	[[ $dir = "$B" ]] && B=.
+	countme="$USER$PROMPT_AT$(hostname):$dir($B)\$ "
+
+	[[ $B == master || $B == main ]] && b="$r"
+	[[ -n "$B" ]] && B="$g($b$B$g)"
+
+	short="$u\u$g$PROMPT_AT$h\h$g:$w$dir$B$p$P$x "
+	long="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir$B\n${g}╚$p$P$x "
+	double="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir\n${g}║$B\n${g}╚$p$P$x "
+
+	if ((${#countme} > PROMPT_MAX)); then
+		PS1="$double"
+	elif ((${#countme} > PROMPT_LONG)); then
+		PS1="$long"
+	else
+		PS1="$short"
+	fi
+
+	if _have tmux && [[ -n "$TMUX" ]]; then
+		tmux rename-window "$(wd)"
+	fi
+}
+
+wd() {
+	dir="${PWD##*/}"
+	parent="${PWD%"/${dir}"}"
+	parent="${parent##*/}"
+	echo "$parent/$dir"
+} && export wd
+
+PROMPT_COMMAND="__ps1"
+
+# ----------------------------- keyboard -----------------------------
+
+# only works if you have X and are using graphic Linux desktop
+
+_have setxkbmap && test -n "$DISPLAY" &&
+	setxkbmap -option ctrl:swapcaps &>/dev/null
+
+# ------------------------------ aliases -----------------------------
+#      (use exec scripts instead, which work from vim and subprocs)
+
+unalias -a
+alias todo='vi ~/.todo'
+alias ip='ip -c'
+alias '?'=gpt
+alias '??'=duck
+alias '???'=google
+alias dot='cd $DOTFILES'
+alias scripts='cd $SCRIPTS'
+alias snippets='cd $SNIPPETS'
+alias ls='ls -h --color=auto'
+alias la='ls -hal --color=auto'
+alias free='free -h'
+alias tree='tree -a'
+alias df='df -h'
+alias chmox='chmod +x'
+alias diff='diff --color'
+alias sshh='sshpass -f $HOME/.sshpass ssh '
+alias temp='cd $(mktemp -d)'
+alias view='vi -R' # which is usually linked to vim
+alias clear='printf "\e[H\e[2J"'
+alias c='printf "\e[H\e[2J"'
+alias neo="neo -D -c gold"
+alias more="less"
+alias gitl="git log -n 5 --graph --decorate --oneline"
+alias gp="git push"
+alias gptags="git push origin --tags"
+alias cur="vi ~/.currently"
+
+set-editor() {
+	export EDITOR="$1"
+	export VISUAL="$1"
+	export GH_EDITOR="$1"
+	export GIT_EDITOR="$1"
+	alias vi="\$EDITOR"
+}
+_have "vim" && set-editor vi
+_have "nvim" && set-editor nvim
+
+# ----------------------------- functions ----------------------------
+
+envx() {
+	local envfile="${1:-"$HOME/.env"}"
+	[[ ! -e "$envfile" ]] && echo "$envfile not found" && return 1
+	while IFS= read -r line; do
+		name=${line%%=*}
+		value=${line#*=}
+		[[ -z "${name}" || $name =~ ^# ]] && continue
+		export "$name"="$value"
+	done <"$envfile"
+} && export -f envx
+
+[[ -e "$HOME/.env" ]] && envx "$HOME/.env"
+
+new-from() {
+	local template="$1"
+	local name="$2"
+	! _have gh && echo "gh command not found" && return 1
+	[[ -z "$name" ]] && echo "usage: $0 <name>" && return 1
+	[[ -z "$GHREPOS" ]] && echo "GHREPOS not set" && return 1
+	[[ ! -d "$GHREPOS" ]] && echo "Not found: $GHREPOS" && return 1
+	cd "$GHREPOS" || return 1
+	[[ -e "$name" ]] && echo "exists: $name" && return 1
+	gh repo create -p "$template" --public "$name"
+	gh repo clone "$name"
+	cd "$name" || return 1
+} && export -f new-from
+
+clone() {
+	local repo="$1" user
+	local repo="${repo#https://github.com/}"
+	local repo="${repo#git@github.com:}"
+	if [[ $repo =~ / ]]; then
+		user="${repo%%/*}"
+	else
+		user="$GITUSER"
+		[[ -z "$user" ]] && user="$USER"
+	fi
+	local name="${repo##*/}"
+	local userd="$REPOS/github.com/$user"
+	local path="$userd/$name"
+	[[ -d "$path" ]] && cd "$path" && return
+	mkdir -p "$userd"
+	cd "$userd"
+	echo gh repo clone "$user/$name" -- --recurse-submodule
+	gh repo clone "$user/$name" -- --recurse-submodule
+	cd "$name"
+} && export -f clone
+
+. "$HOME/.local/share/../bin/env"
