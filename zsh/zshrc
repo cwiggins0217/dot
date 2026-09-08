@@ -115,7 +115,7 @@ function zle-line-init {
 zle -N zle-line-init
 
 PROMPT=' $(exit_status)'\
-'${FG_CYAN}%n${FG_RED}@${FG_BLUE}%m${RESET} '\
+'${FG_CYAN}%n${FG_RED}@${FG_GREEN}%m${RESET} '\
 '${FG_DIM}%~${RESET}'\
 '$(git_branch) '\
 '${MODE} $(root_indicator) '
@@ -240,3 +240,5 @@ nnn_cd () {
     fi
 }
 trap nnn_cd EXIT
+
+. "$HOME/.local/share/../bin/env"

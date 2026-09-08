@@ -1,4 +1,4 @@
-zenburn" ======================================= BEGIN CONFIG ===========================================0
+" =============================== BEGIN CONFIG ==================================
 "" checks for vim-tiny (vi)
 if has("eval")
         let skip_defaults_vim = 1
@@ -40,13 +40,13 @@ if has('termguicolors') " comment this out if using screen
     set termguicolors
 endif
 set t_Co=256
-" ====================================== more misc stuff ===========================================
-set textwidth=80           " this is more modern, might think it's stupid later and change my mind
-set colorcolumn=81                                             " already leaning toward stupid tbh
+" ============================== more misc stuff ================================
+set textwidth=80
+set colorcolumn=81
 set spc=
 set expandtab
-set nobackup                                                    " because I like living on the edge
-set noswapfile                                                     " and having cleaner directories
+set nobackup
+set noswapfile
 set nowritebackup
 set noundofile
 set icon
@@ -56,7 +56,7 @@ set linebreak
 set wrapscan
 set nowrap
 set shortmess=aoOtTI
-set viminfo='20,<1000,s1000                                 " prevent truncated yanks, deletes, etc
+set viminfo='20,<1000,s1000
 set ttyfast
 set ttimeoutlen=0
 set showmatch
@@ -135,6 +135,13 @@ nnoremap <leader>pl :Lexplore<CR>
 nnoremap <leader>r :set number! relativenumber!<CR>
 nnoremap <Esc><Esc> :noh<CR>
 
+" this is a command that sends a line to a remote host to execute in a shell
+" TODO: make a script for changing users and hosts
+nnoremap <leader>br yyp:.!ssh cis@masters-proj "bash"<CR>
+
+" TODO: make a script for generic compilation
+nnoremap <leader>c :w<CR>:!pandoc "%" -o "%:r.pdf" --pdf-engine=xelatex<CR>
+
 if filereadable(expand("/usr/local/bin/obnc"))
     au BufRead,BufNewFile *.Mod set filetype=oberon
 endif
@@ -155,7 +162,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
 
        " "thinking about dropping neovim altogether... too slow
        " " coc requires nvim 0.8
-        "if has('nvim-0.8')
+        "if has('nvim-1.8')
         "    Plug 'neoclide/coc.nvim', {'branch': 'release'}
         "endif
 
@@ -168,7 +175,6 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
-            Plug 'talha-akram/noctis.nvim'
 
             " FIXME checkhealth complains about not finding perl executable
             let g:loaded_perl_provider = 0
@@ -250,18 +256,25 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     endif
 
 if has("syntax")
-	syntax on
-	set background=dark
-	colorscheme quiet	
-    	hi clear SignColumn
-    	"hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
-    	hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
-    	hi Normal ctermbg=NONE guibg=NONE
-    	hi CursorLineNr ctermbg=NONE guibg=NONE
-    	hi ColorColumn cterm=NONE
-    	hi Statusline ctermfg=White ctermbg=NONE guifg=White guibg=NONE
-    	"hi MsgArea guifg=White guibg=Green ctermbg=Green ctermfg=White
-    	hi ErrorMsg ctermfg=Red guifg=Red
-    	hi MoreMsg ctermfg=Yellow guifg=Yellow
-    	hi ModeMsg ctermfg=Cyan guifg=Cyan
+    if has("nvim")
+        syntax on
+        set background=dark
+        colorscheme quiet
+    else
+        syntax on
+	    set background=dark
+        colorscheme quiet
+    endif
+
+   	hi clear SignColumn
+   	"hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
+   	hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
+   	hi Normal ctermbg=NONE guibg=NONE
+   	hi CursorLineNr ctermbg=NONE guibg=NONE
+   	hi ColorColumn cterm=NONE
+   	hi Statusline ctermfg=White ctermbg=NONE guifg=White guibg=NONE
+   	"hi MsgArea guifg=White guibg=Green ctermbg=Green ctermfg=White
+   	hi ErrorMsg ctermfg=Red guifg=Red
+   	hi MoreMsg ctermfg=Yellow guifg=Yellow
+   	hi ModeMsg ctermfg=Cyan guifg=Cyan
 endif
