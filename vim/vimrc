@@ -91,15 +91,22 @@ fun! JumpToDef()
     endif
 endf
 " ===================================== statusline =================================================
-function! Gitbranch()
-    let branch = system("git branch --show-current 2>/dev/null")
-    if v:shell_error != 0
-        return ''
-    endif
+" the git branch function makes neovim slow
 
-    let branch = substitute(branch, '\n', '', '')
-    return branch ==# '' ? '' : ' | ' . branch
+let g:git_branch = ''
+function! UpdateGitBranch()
+    let l:branch = system('git branch --show-current 2>/dev/null')
+    let g:git_branch = empty(v:shell_error) ? trim(l:branch) : ''
 endfunction
+
+function! GitBranch()
+    return empty(g:git_branch) ? '' : ' '.g:git_branch
+endfunction
+
+augroup git_statusline
+    autocmd!
+    autocmd VimEnter,BufEnter,DirChanged * call UpdateGitBranch()
+augroup END
 
 set laststatus=3
 
@@ -110,7 +117,7 @@ set statusline+=\ %{&filetype}
 set statusline+=\ %{&fileencoding}
 set statusline+=\ %{&fileformat}
 set statusline+=%=
-set statusline+=%{Gitbranch()}
+set statusline+=%{GitBranch()}
 set statusline+=\ %p%%
 set statusline+=\ %l:%c
 
@@ -142,10 +149,6 @@ nnoremap <leader>br yyp:.!ssh cis@masters-proj "bash"<CR>
 " TODO: make a script for generic compilation
 nnoremap <leader>c :w<CR>:!pandoc "%" -o "%:r.pdf" --pdf-engine=xelatex<CR>
 
-if filereadable(expand("/usr/local/bin/obnc"))
-    au BufRead,BufNewFile *.Mod set filetype=oberon
-endif
-
 " ==================================== Vim-Plug ====================================================
 " as a rule-of-thumb, I prefer built-in functions and filters over extensions
 " only runs if vim-plug script is found in ~/.vim/autoload/
@@ -162,9 +165,9 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
 
        " "thinking about dropping neovim altogether... too slow
        " " coc requires nvim 0.8
-        "if has('nvim-1.8')
-        "    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-        "endif
+        if has('nvim-0.8')
+            Plug 'neoclide/coc.nvim', {'branch': 'release'}
+        endif
 
        " " treesitter rewrite requires absolute latest nvim for some reason
         if has('nvim-0.11')
@@ -177,9 +180,9 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
             Plug 'xolox/vim-lua-ftplugin'
 
             " FIXME checkhealth complains about not finding perl executable
-            let g:loaded_perl_provider = 0
+            "let g:loaded_perl_provider = 1
             " FIXME checkhealth also complains about ruby host
-            let g:loaded_ruby_provider = 0
+            "let g:loaded_ruby_provider = 1
             endif
 
   call plug#end()
@@ -213,6 +216,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         "improves performance
         let g:ale_lint_on_text_changed = 'never'
         let g:ale_lint_on_insert_leave = 1
+        let g:ale_lint_on_save = 1
         let g:ale_cache_executable_check_failures = 1
 
         let g:ale_fixers = {
@@ -256,24 +260,18 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
     endif
 
 if has("syntax")
-    if has("nvim")
-        syntax on
-        set background=dark
-        colorscheme quiet
-    else
-        syntax on
-	    set background=dark
-        colorscheme quiet
-    endif
+    syntax on
+    set background=dark
+    colorscheme quiet
 
    	hi clear SignColumn
-   	"hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
+   	hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
    	hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
    	hi Normal ctermbg=NONE guibg=NONE
    	hi CursorLineNr ctermbg=NONE guibg=NONE
    	hi ColorColumn cterm=NONE
    	hi Statusline ctermfg=White ctermbg=NONE guifg=White guibg=NONE
-   	"hi MsgArea guifg=White guibg=Green ctermbg=Green ctermfg=White
+   	hi MsgArea guifg=LightGreen guibg=NONE ctermbg=LightGreen ctermfg=White
    	hi ErrorMsg ctermfg=Red guifg=Red
    	hi MoreMsg ctermfg=Yellow guifg=Yellow
    	hi ModeMsg ctermfg=Cyan guifg=Cyan
