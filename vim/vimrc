@@ -143,8 +143,8 @@ nnoremap <leader>r :set number! relativenumber!<CR>
 nnoremap <Esc><Esc> :noh<CR>
 
 " this is a command that sends a line to a remote host to execute in a shell
-" TODO: make a script for changing users and hosts
-nnoremap <leader>br yyp:.!ssh cis@masters-proj "bash"<CR>
+" TODO: make a script for changing users and hosts, more universal
+nnoremap <leader>br yyp:.!ssh cis@lab "bash"<CR>
 
 " TODO: make a script for generic compilation
 nnoremap <leader>c :w<CR>:!pandoc "%" -o "%:r.pdf" --pdf-engine=xelatex<CR>
