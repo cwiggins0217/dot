@@ -1,7 +1,5 @@
 local wezterm = require("wezterm")
 local mux = wezterm.mux
-
-
 -------------------------------- Detect OS -------------------------------------
 local function detect_os()
     if wezterm.target_triple == "x86_64-apple-darwin" or wezterm.target_triple == "aarch64-apple-darwin" then
@@ -15,9 +13,6 @@ local function detect_os()
     end
 end
 local myos = detect_os()
---------------------------------------------------------------------------------
-
-
 ---------------------------- Detect Shell --------------------------------------
 local function detect_shell()
     if myos == "windows" then
@@ -29,9 +24,6 @@ local function detect_shell()
     end
 end
 local myshell = detect_shell()
---------------------------------------------------------------------------------
-
-
 --------------------------- Begin Config ---------------------------------------
 local config = {}
 if wezterm.config_builder then config = wezterm.config_builder() end
@@ -40,26 +32,19 @@ if myos == "windows" then -- powershell default for windows
 elseif myos == "linux" or myos == "macos" then -- FIXME linux and mac should do the same, right?
     config.default_prog = { '/usr/bin/zsh' }
 end
---------------------------------------------------------------------------------
-
-
 -------------------------------- Font and Colorscheme --------------------------
 config.font = wezterm.font_with_fallback{ -- also disables ligatures
   { family = "CommitMono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, },
   { family = "JetBrains Mono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, }, }
 
---config.color_scheme = "Selenized Dark (Gogh)"
---config.color_scheme = "Selenized Light (Gogh)"
 config.color_scheme = "Zenburn"
+
+config.window_background_opacity = 0.93
 
 if myos == "windows" then -- windows-specific desktop env stuff
     config.win32_system_backdrop = 'Auto' -- the other options are buggy, only this seems to work
     config.front_end = "WebGpu"
-    config.window_background_opacity = 1.0 -- can be toggled with function below
 end
---------------------------------------------------------------------------------
-
-
 ---------------------------- Toggle opacity ------------------------------------
 if myos == "windows" then
 wezterm.on('toggle-opacity', function(window, pane)
@@ -83,9 +68,6 @@ wezterm.on('toggle-opacity', function(window, pane)
   window:set_config_overrides(overrides)
 end)
 end
---------------------------------------------------------------------------------
-
-
 ---------------------------------- Keybinds ------------------------------------
 config.keys = {
 	{ key = '%', mods = 'CTRL|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },},
@@ -103,9 +85,6 @@ config.keys = {
     action = wezterm.action.EmitEvent 'toggle-opacity',
   },
  }
- -------------------------------------------------------------------------------
-
-
 ------------------------ Window Padding and Color Hacks ------------------------
 config.window_padding = {
 	left = 10,
@@ -113,9 +92,6 @@ config.window_padding = {
 	top = 20,
 	bottom = 10,
 }
---------------------------------------------------------------------------------
-
-
 -------------------------------- Misc ------------------------------------------
 config.prefer_egl = true -- TODO look this up, can't remember what it does
 config.bold_brightens_ansi_colors = true -- bold is bright, really zenburn requires this
@@ -128,5 +104,4 @@ config.default_cursor_style = "BlinkingBlock"
 config.animation_fps = 144 -- FIXME adjust as neeed
 config.audible_bell = "Disabled" -- for the love of God, turn this shit off
 --------------------------------------------------------------------------------
-
 return config

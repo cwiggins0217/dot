@@ -21,6 +21,8 @@ set smarttab
 set noignorecase
 set noerrorbells
 set visualbell
+set splitbelow " horizontal splits always go below
+set splitright " vertical splits always go to the right
 
 
 """""""""""""""""""""""""""""""""""""""
@@ -67,6 +69,8 @@ set noshowmatch
 set hidden
 set cinoptions+=:0
 set history=100
+set nomodeline
+
 if has("eval")
         let g:loaded_matchparen=1
 endif
@@ -90,7 +94,7 @@ fun! JumpToDef()
     exe "norm! \<C-]>"
     endif
 endf
-" ===================================== statusline =================================================
+" ================================ statusline ===================================
 " the git branch function makes neovim slow
 
 let g:git_branch = ''
@@ -121,14 +125,14 @@ set statusline+=%{GitBranch()}
 set statusline+=\ %p%%
 set statusline+=\ %l:%c
 
-" =========================================== netrw ================================================
+" ================================== netrw =====================================
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize=25
 
-" ========================================== Keybinds ==============================================
+" ================================= Keybinds ====================================
 nnoremap confe :e $HOME/.vimrc<CR>
 nnoremap confr :source $HOME/.vimrc<CR>
 nnoremap coming i_In development..._<Esc>
@@ -136,20 +140,23 @@ nnoremap coming i_In development..._<Esc>
 let mapleader=" "
 nnoremap <leader>w :w<CR>
 nnoremap <leader>q :q<CR>
-nnoremap <leader>e :Explore<CR>
+nnoremap <leader>e :Lexplore<CR>
 nnoremap <leader>pv :Vexplore<CR>
-nnoremap <leader>pl :Lexplore<CR>
 nnoremap <leader>r :set number! relativenumber!<CR>
 nnoremap <Esc><Esc> :noh<CR>
+
+" this is heretical, but I'm trying it anyway
+nnoremap <leader>t :horizontal terminal<CR>
 
 " this is a command that sends a line to a remote host to execute in a shell
 " TODO: make a script for changing users and hosts, more universal
 nnoremap <leader>br yyp:.!ssh cis@lab "bash"<CR>
 
 " TODO: make a script for generic compilation
-nnoremap <leader>c :w<CR>:!pandoc "%" -o "%:r.pdf" --pdf-engine=xelatex<CR>
+nnoremap <leader>cp :w<CR>:!pandoc "%" -o "%:r.pdf" --pdf-engine=xelatex<CR>
+nnoremap <leader>ch :w<CR>:!pandoc "%" -o "%:r.html"<CR>
 
-" ==================================== Vim-Plug ====================================================
+" ==================================== Vim-Plug =================================
 " as a rule-of-thumb, I prefer built-in functions and filters over extensions
 " only runs if vim-plug script is found in ~/.vim/autoload/
 if filereadable(expand("~/.vim/autoload/plug.vim"))
@@ -159,18 +166,17 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'conradirwin/vim-bracketed-paste'
         Plug 'jiangmiao/auto-pairs'
         Plug 'vim-pandoc/vim-pandoc'
-        Plug 'rwxrob/vim-pandoc-syntax-simple'
+        Plug 'vim-pandoc/vim-pandoc-syntax'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
 
-       " "thinking about dropping neovim altogether... too slow
-       " " coc requires nvim 0.8
+       " coc requires nvim 0.8
         if has('nvim-0.8')
             Plug 'neoclide/coc.nvim', {'branch': 'release'}
         endif
 
-       " " treesitter rewrite requires absolute latest nvim for some reason
-        if has('nvim-0.11')
+       " treesitter requires absolute latest nvim for some reason
+        if has('nvim-0.12')
             Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
             Plug 'rwxrob/nvim-treesitter-textobjects'
         endif
@@ -178,20 +184,21 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
+            Plug 'darkvoid-theme/darkvoid.nvim'
 
             " FIXME checkhealth complains about not finding perl executable
             "let g:loaded_perl_provider = 1
             " FIXME checkhealth also complains about ruby host
             "let g:loaded_ruby_provider = 1
-            endif
+        endif
 
   call plug#end()
 
         fun! JumpToDef()
+            exe "norm! \<C-]>"
+
             if exists("*GotoDefinition_" . &filetype)
                 call GotoDefinition_{&filetype}()
-            else
-                exe "norm! \<C-]>"
             endif
         endf
 
@@ -259,10 +266,18 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         au FileType go nmap <leader>n iif err != nil {return err}<CR><ESC>
     endif
 
-if has("syntax")
+" =============================== Colorscheme ==================================
+if has('syntax')
+
     syntax on
     set background=dark
     colorscheme quiet
+
+    if has('nvim')
+        syntax on
+        set background=dark
+        colorscheme darkvoid
+    endif
 
    	hi clear SignColumn
    	hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
@@ -270,9 +285,10 @@ if has("syntax")
    	hi Normal ctermbg=NONE guibg=NONE
    	hi CursorLineNr ctermbg=NONE guibg=NONE
    	hi ColorColumn cterm=NONE
-   	hi Statusline ctermfg=White ctermbg=NONE guifg=White guibg=NONE
    	hi MsgArea guifg=LightGreen guibg=NONE ctermbg=LightGreen ctermfg=White
    	hi ErrorMsg ctermfg=Red guifg=Red
    	hi MoreMsg ctermfg=Yellow guifg=Yellow
-   	hi ModeMsg ctermfg=Cyan guifg=Cyan
+   	hi ModeMsg ctermfg=Magenta guifg=Magenta
 endif
+
+
