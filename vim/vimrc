@@ -44,7 +44,7 @@ endif
 set t_Co=256
 " ============================== more misc stuff ================================
 set textwidth=80
-set colorcolumn=81
+"set colorcolumn=81
 set spc=
 set expandtab
 set nobackup
@@ -94,44 +94,12 @@ fun! JumpToDef()
     exe "norm! \<C-]>"
     endif
 endf
-" ================================ statusline ===================================
-" the git branch function makes neovim slow
-
-let g:git_branch = ''
-function! UpdateGitBranch()
-    let l:branch = system('git branch --show-current 2>/dev/null')
-    let g:git_branch = empty(v:shell_error) ? trim(l:branch) : ''
-endfunction
-
-function! GitBranch()
-    return empty(g:git_branch) ? '' : ' '.g:git_branch
-endfunction
-
-augroup git_statusline
-    autocmd!
-    autocmd VimEnter,BufEnter,DirChanged * call UpdateGitBranch()
-augroup END
-
-set laststatus=3
-
-set statusline=\
-set statusline+=%<%f%m%r
-set statusline+=\ %y
-set statusline+=\ %{&filetype}
-set statusline+=\ %{&fileencoding}
-set statusline+=\ %{&fileformat}
-set statusline+=%=
-set statusline+=%{GitBranch()}
-set statusline+=\ %p%%
-set statusline+=\ %l:%c
-
 " ================================== netrw =====================================
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize=25
-
 " ================================= Keybinds ====================================
 nnoremap confe :e $HOME/.vimrc<CR>
 nnoremap confr :source $HOME/.vimrc<CR>
@@ -144,9 +112,6 @@ nnoremap <leader>e :Lexplore<CR>
 nnoremap <leader>pv :Vexplore<CR>
 nnoremap <leader>r :set number! relativenumber!<CR>
 nnoremap <Esc><Esc> :noh<CR>
-
-" this is heretical, but I'm trying it anyway
-nnoremap <leader>t :horizontal terminal<CR>
 
 " this is a command that sends a line to a remote host to execute in a shell
 " TODO: make a script for changing users and hosts, more universal
@@ -184,7 +149,6 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
-            Plug 'darkvoid-theme/darkvoid.nvim'
 
             " FIXME checkhealth complains about not finding perl executable
             "let g:loaded_perl_provider = 1
@@ -265,7 +229,6 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         au FileType go nmap <leader>m ilog.Print("made")<CR><ESC>
         au FileType go nmap <leader>n iif err != nil {return err}<CR><ESC>
     endif
-
 " =============================== Colorscheme ==================================
 if has('syntax')
 
@@ -273,22 +236,21 @@ if has('syntax')
     set background=dark
     colorscheme quiet
 
-    if has('nvim')
-        syntax on
-        set background=dark
-        colorscheme darkvoid
-    endif
-
    	hi clear SignColumn
    	hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
    	hi LineNr cterm=NONE ctermbg=NONE gui=NONE guibg=NONE
    	hi Normal ctermbg=NONE guibg=NONE
    	hi CursorLineNr ctermbg=NONE guibg=NONE
    	hi ColorColumn cterm=NONE
-   	hi MsgArea guifg=LightGreen guibg=NONE ctermbg=LightGreen ctermfg=White
+   	hi MsgArea guifg=#5ca47f guibg=NONE
    	hi ErrorMsg ctermfg=Red guifg=Red
    	hi MoreMsg ctermfg=Yellow guifg=Yellow
-   	hi ModeMsg ctermfg=Magenta guifg=Magenta
+
+   augroup ModeColorChanges
+        autocmd!
+        autocmd ModeChanged *:[vV\x16]* highlight ModeMsg guifg=#f6c500
+        autocmd ModeChanged *:i* highlight ModeMsg guifg=red
+        autocmd ModeChanged *:n* highlight ModeMsg guifg=cyan
+   augroup END
+
 endif
-
-

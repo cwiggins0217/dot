@@ -2,7 +2,7 @@
 case $- in
 	*i*) ;;
 	*) return;;
-esac 
+esac
 # ============================= Misc Options ===================================
 autoload -Uz compinit && compinit
 autoload -U colors && colors
