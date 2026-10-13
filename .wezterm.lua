@@ -3,7 +3,7 @@ local mux = wezterm.mux
 --------------------------- Begin Config ---------------------------------------
 local config = {}
 if wezterm.config_builder then config = wezterm.config_builder() end
-
+config.terminal = "xterm-256color"
 -------------------------------- Font and Colorscheme --------------------------
 config.font = wezterm.font_with_fallback{ -- also disables ligatures
   { family = "OCR B", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, },
@@ -56,10 +56,10 @@ if myos == "windows" then -- windows-specific desktop env stuff
 end
 ------------------------ Window Padding and Color Hacks ------------------------
 config.window_padding = {
-	left = 10,
-	right = 10,
-	top = 20,
-	bottom = 10,
+	left = 40,
+	right = 0,
+	top = 50,
+	bottom = 0,
 }
 -------------------------------- Misc ------------------------------------------
 config.bold_brightens_ansi_colors = false -- bold is bright, zenburn needs this on

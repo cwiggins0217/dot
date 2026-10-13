@@ -24,7 +24,6 @@ set visualbell
 set splitbelow " horizontal splits always go below
 set splitright " vertical splits always go to the right
 
-
 """""""""""""""""""""""""""""""""""""""
 " misc stuff, makes vim less annoying "
 """""""""""""""""""""""""""""""""""""""
@@ -42,6 +41,7 @@ if has('termguicolors') " comment this out if using screen
     set termguicolors
 endif
 set t_Co=256
+
 " ============================== more misc stuff ================================
 set textwidth=80
 "set colorcolumn=81
@@ -75,8 +75,31 @@ if has("eval")
         let g:loaded_matchparen=1
 endif
 
+set foldmethod=expr
+set foldexpr=MarkdownFold()
+
+function! MarkdownFold()
+    let line = getline(v:lnum)
+    if line =~ '^#\+'
+        return '>' . strlen(matchstr(line, '^#\+'))
+    endif
+    return '='
+endfunction
+
+" ripgrep, for vim
+set grepprg=rg\ --vimgrep\ --smart-case
+set grepformat=%f:%l:%c:%m
+
+" commands for org agenda-like behavior
+command! Todo grep "^## TODO" ~/notes
+command! TNext grep "^## Next" ~/notes
+command! Waiting grep "^## WAIT" ~/notes
+command! Tasks grep '\- \[ \]' ~/notes
+command! -nargs=+ Capture execute '!capture' . shellescape(<q-args>)
+
 " format shell on save
 if has("eval") " vim-tiny detection
+
 " TODO check for shfmt and shellcheck before defining
 " FIXME stop from blowing away file when there is shell error
 fun! s:FormatShell()
@@ -135,10 +158,12 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
 
-       " coc requires nvim 0.8
-        if has('nvim-0.8')
-            Plug 'neoclide/coc.nvim', {'branch': 'release'}
-        endif
+       "" coc requires nvim 0.8
+       " thinking about going without completion... can be distracting
+       " also can be slow
+       " if has('nvim-0.8')
+       "     Plug 'neoclide/coc.nvim', {'branch': 'release'}
+       " endif
 
        " treesitter requires absolute latest nvim for some reason
         if has('nvim-0.12')
@@ -228,9 +253,11 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         " common go macros
         au FileType go nmap <leader>m ilog.Print("made")<CR><ESC>
         au FileType go nmap <leader>n iif err != nil {return err}<CR><ESC>
+
     endif
 " =============================== Colorscheme ==================================
 if has('syntax')
+
 
     syntax on
     set background=dark

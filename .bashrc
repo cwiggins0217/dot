@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC1090,SC1091
 
 case $- in
 *i*) ;; # interactive
@@ -11,7 +10,7 @@ _have() { type "$1" &>/dev/null; }
 _source_if() { [[ -r "$1" ]] && source "$1"; }
 
 # ============== Clear screen ====================
-bind '"\C-l":clear-screen'
+#bind '"\C-l":clear-screen'
 
 # ============== ENV Vars =========================
 export LANG=en_US.UTF-8
@@ -124,7 +123,7 @@ shopt -s histappend
 
 # --------------------------- smart prompt ---------------------------
 #                 (keeping in bashrc for portability)
-# This was lifted from Rob Muhlestein rwxrob.github.io
+# This was lifted from Rob Muhlestein https://rwxrob.github.io
 
 PROMPT_LONG=20
 PROMPT_MAX=95
@@ -132,9 +131,9 @@ PROMPT_AT=@
 
 __ps1() {
 	local P='$' dir="${PWD##*/}" B countme short long double \
-		r='\[\e[39m\]' h='\[\e[38m\]' \
-		u='\[\e[37m\]' p='\[\e[36m\]' w='\[\e[37m\]' \
-		b='\[\e[36m\]' x='\[\e[0m\]' \
+		r='\[\e[39m\]' h='\[\e[32m\]' \
+		u='\[\e[36m\]' p='\[\e[35m\]' w='\[\e[35m\]' \
+		b='\[\e[34m\]' x='\[\e[0m\]' \
 		g="\[\033[38;2;90;82;76m\]"
 
 	[[ $EUID == 0 ]] && P='#' && u=$r && p=$u # root
@@ -148,9 +147,9 @@ __ps1() {
 	[[ $B == master || $B == main ]] && b="$r"
 	[[ -n "$B" ]] && B="$g($b$B$g)"
 
-	short="$u\u$g$PROMPT_AT$h\h$g:$w$dir$B$p$P$x "
-	long="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir$B\n${g}╚$p$P$x "
-	double="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir\n${g}║$B\n${g}╚$p$P$x "
+	short="$u\u$g$PROMPT_AT$h\h$g:$w$dir$B$p$P$x"
+	long="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir$B\n${g}╚$p$P$x"
+	double="${g}╔$u\u$g$PROMPT_AT$h\h$g:$w$dir\n${g}║$B\n${g}╚$p$P$x"
 
 	if ((${#countme} > PROMPT_MAX)); then
 		PS1="$double"
