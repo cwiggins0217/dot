@@ -1,90 +1,59 @@
 local wezterm = require("wezterm")
 local mux = wezterm.mux
--------------------------------- Detect OS -------------------------------------
-local function detect_os()
-    if wezterm.target_triple == "x86_64-apple-darwin" or wezterm.target_triple == "aarch64-apple-darwin" then
-        return "macos"
-    elseif wezterm.target_triple == "x86_64-pc-windows-msvc" then
-        return "windows"
-    elseif wezterm.target_triple == "x86_64-unknown-linux-gnu" then
-        return "linux"
-    else
-        return "unknown"
-    end
-end
-local myos = detect_os()
----------------------------- Detect Shell --------------------------------------
-local function detect_shell()
-    if myos == "windows" then
-        return { "wsl.exe" }
-    elseif myos == "mac" then
-        return { "/opt/homebrew/bin/bash", "--login", }
-    else
-        return { "/bin/bash", "--login" }
-    end
-end
-local myshell = detect_shell()
 --------------------------- Begin Config ---------------------------------------
 local config = {}
 if wezterm.config_builder then config = wezterm.config_builder() end
-if myos == "windows" then -- powershell default for windows
-    config.default_prog = { 'powershell' }
-elseif myos == "linux" or myos == "macos" then -- FIXME linux and mac should do the same, right?
-    config.default_prog = { '/usr/bin/zsh' }
-end
+
 -------------------------------- Font and Colorscheme --------------------------
 config.font = wezterm.font_with_fallback{ -- also disables ligatures
-  { family = "CommitMono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, },
+  { family = "OCR B", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, },
   { family = "JetBrains Mono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, }, }
 
-config.color_scheme = "Zenburn"
+-- Neil Panchal's 'usgc-reticle' theme, from US Graphics
+ config.color_schemes = {
+   ["USGC RETICLE"] = {
+     foreground = "#00A35E",
+     background = "#000000",
 
-config.window_background_opacity = 0.93
+     cursor_bg = "#759D95",
+     cursor_fg = "#FFFFFF",
 
+     selection_bg = "#003D80",
+     selection_fg = "#FEC400",
+
+     ansi = {
+       "#222B26", -- black
+       "#E00000", -- red
+       "#FEC400", -- green
+       "#FEC400", -- yellow
+       "#1986F6", -- blue
+       "#F94D8D", -- magenta
+       "#00A9FC", -- cyan
+       "#E9FFFC", -- white
+     },
+
+     brights = {
+       "#424F46", -- bright black
+       "#E00000", -- bright red
+       "#F3BC00", -- bright green
+       "#FEC400", -- bright yellow
+       "#FE761F", -- bright blue
+       "#F94D8D", -- bright magenta
+       "#00A8FC", -- bright cyan
+       "#E8FFFC", -- bright white
+     },
+
+     -- From the original iTerm theme
+     compose_cursor = "#FFFFFF",
+   },
+}
+
+config.color_scheme = "USGC RETICLE"
+
+config.window_background_opacity = 1.00
 if myos == "windows" then -- windows-specific desktop env stuff
-    config.win32_system_backdrop = 'Auto' -- the other options are buggy, only this seems to work
-    config.front_end = "WebGpu"
+	config.win32_system_backdrop = "Auto" -- only this seems to work
 end
----------------------------- Toggle opacity ------------------------------------
-if myos == "windows" then
-wezterm.on('toggle-opacity', function(window, pane)
-  local overrides = window:get_config_overrides() or {}
-
-  -- If we are currently opaque, make it transparent
-  if not overrides.window_background_opacity or overrides.window_background_opacity == 1.0 then
-    overrides.window_background_opacity = 0.95
-    -- Using the RGB for Selenized Dark (16, 60, 72)
-    -- Using the RGB for Zenburn (63, 63, 63)
-    -- The 0.8 alpha ensures it doesn't "white out"
-    overrides.colors = {
-      background = 'rgba(63, 63, 63, 0.90)',
-    }
-  else
-    -- Toggle OFF: Reset to fully opaque
-    overrides.window_background_opacity = 1.0
-    overrides.colors = nil
-  end
-
-  window:set_config_overrides(overrides)
-end)
-end
----------------------------------- Keybinds ------------------------------------
-config.keys = {
-	{ key = '%', mods = 'CTRL|SHIFT', action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },},
-	{ key = '"', mods = 'CTRL|SHIFT', action = wezterm.action.SplitVertical   { domain = 'CurrentPaneDomain' },},
-	{ key = 'h', mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Left',},
-  	{ key = 'l', mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Right',},
-  	{ key = 'k', mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Up',},
-  	{ key = 'j', mods = 'CTRL|SHIFT', action = wezterm.action.ActivatePaneDirection 'Down',},
-	{ key = 'f', mods = 'CTRL|SHIFT', action = wezterm.action.ToggleFullScreen,},
-    { key = 'i', mods = 'CTRL|SHIFT', action = wezterm.action.Search 'CurrentSelectionOrEmptyString',},
-
-  {
-    key = 'o',         -- toggle opacity
-    mods = 'CTRL|SHIFT',
-    action = wezterm.action.EmitEvent 'toggle-opacity',
-  },
- }
 ------------------------ Window Padding and Color Hacks ------------------------
 config.window_padding = {
 	left = 10,
@@ -93,15 +62,16 @@ config.window_padding = {
 	bottom = 10,
 }
 -------------------------------- Misc ------------------------------------------
-config.prefer_egl = true -- TODO look this up, can't remember what it does
-config.bold_brightens_ansi_colors = true -- bold is bright, really zenburn requires this
+config.bold_brightens_ansi_colors = false -- bold is bright, zenburn needs this on
 config.window_decorations = "TITLE|RESIZE"
 config.window_close_confirmation = "AlwaysPrompt"
 config.scrollback_lines = 3000
-config.default_workspace = "Home" -- TODO look into workspaces sometime
+-- config.default_workspace = "Home" -- TODO look into workspaces sometime
 config.hide_tab_bar_if_only_one_tab = true
+config.use_fancy_tab_bar = false
 config.default_cursor_style = "BlinkingBlock"
 config.animation_fps = 144 -- FIXME adjust as neeed
 config.audible_bell = "Disabled" -- for the love of God, turn this shit off
+config.front_end = "WebGpu" -- this should be global
 --------------------------------------------------------------------------------
 return config
