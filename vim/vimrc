@@ -24,7 +24,9 @@ set visualbell
 set splitbelow " horizontal splits always go below
 set splitright " vertical splits always go to the right
 
-"""""""""""""""""""""""""""""""""""""""
+set path+=** "fuzzy tab-completion for file-related tasks
+
+""""""""""""""""""""""""""""""""""""""
 " misc stuff, makes vim less annoying "
 """""""""""""""""""""""""""""""""""""""
 if v:version >=  800
@@ -118,11 +120,12 @@ fun! JumpToDef()
     endif
 endf
 " ================================== netrw =====================================
-let g:netrw_banner = 0
-let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
+let g:netrw_banner=0 "disable banner
+let g:netrw_liststyle=3 "tree view
+let g:netrw_browse_split=4 "open in prior window
+let g:netrw_altv=1  "open splits to the right
 let g:netrw_winsize=25
+
 " ================================= Keybinds ====================================
 nnoremap confe :e $HOME/.vimrc<CR>
 nnoremap confr :source $HOME/.vimrc<CR>
@@ -136,6 +139,12 @@ nnoremap <leader>pv :Vexplore<CR>
 nnoremap <leader>r :set number! relativenumber!<CR>
 nnoremap <Esc><Esc> :noh<CR>
 
+" clear the search buffer
+nnoremap <silent> <leader>z :let @/=""<CR>
+
+" templates, snippets, etc
+" nnoremap ,html :-1read $HOME/.vim/.skeleton.html<CR>3jwf>a
+
 " this is a command that sends a line to a remote host to execute in a shell
 " TODO: make a script for changing users and hosts, more universal
 nnoremap <leader>br yyp:.!ssh cis@lab "bash"<CR>
@@ -143,6 +152,10 @@ nnoremap <leader>br yyp:.!ssh cis@lab "bash"<CR>
 " TODO: make a script for generic compilation
 nnoremap <leader>cp :w<CR>:!pandoc "%" -o "%:r.pdf" --pdf-engine=xelatex<CR>
 nnoremap <leader>ch :w<CR>:!pandoc "%" -o "%:r.html"<CR>
+
+" format markdown table
+nnoremap <leader>mdt :!tr -s " " \| column -t -s '\|' -o '\|'<CR>
+
 
 " ==================================== Vim-Plug =================================
 " as a rule-of-thumb, I prefer built-in functions and filters over extensions
@@ -157,13 +170,7 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'vim-pandoc/vim-pandoc-syntax'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
-
-       "" coc requires nvim 0.8
-       " thinking about going without completion... can be distracting
-       " also can be slow
-       " if has('nvim-0.8')
-       "     Plug 'neoclide/coc.nvim', {'branch': 'release'}
-       " endif
+        Plug 'Raku/vim-raku'
 
        " treesitter requires absolute latest nvim for some reason
         if has('nvim-0.12')
@@ -174,11 +181,14 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
+            Plug 'neanias/everforest-nvim'
 
             " FIXME checkhealth complains about not finding perl executable
-            "let g:loaded_perl_provider = 1
+            "let g:loaded_perl_provider = 0
             " FIXME checkhealth also complains about ruby host
-            "let g:loaded_ruby_provider = 1
+            "let g:loaded_ruby_provider = 0
+        "else
+        "    Plug 'sainnhe/everforest'
         endif
 
   call plug#end()
@@ -258,10 +268,9 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
 " =============================== Colorscheme ==================================
 if has('syntax')
 
-
     syntax on
     set background=dark
-    colorscheme quiet
+    colorscheme everforest
 
    	hi clear SignColumn
    	hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
