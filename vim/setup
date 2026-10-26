@@ -2,16 +2,17 @@
 
 # check if vim or vim-tiny is installed
 if [ -z "$(command -v vim)" -o -z "$(command -v vimtutor)" ]; then
-  echo "Warning, doesn't look like you have full Vim version."
+	echo "Warning, doesn't look like you have full Vim version."
 fi
 
 # check if neovim is installed
-if [ -z "$(command -v nvim)" ] ; then
-  echo "neovim not found"
+if [ -z "$(command -v nvim)" ]; then
+	echo "neovim not found"
 fi
 
 ln -sf "$PWD/vimrc" "$HOME/.vimrc"
-mkdir -p "$HOME/.vim/autoload"
+mkdir -p "$HOME/.vim/{colors/,autoload/}"
 ln -sf "$PWD/plug.vim" "$HOME/.vim/autoload/plug.vim"
+ln -sf "$PAD/soft-charcoal.vim" "$HOME/.vim/colors/soft-charcoal.vim"
 mkdir -p "$HOME/.config/nvim"
 ln -sf "$PWD/init.lua" "$HOME/.config/nvim/init.lua"
