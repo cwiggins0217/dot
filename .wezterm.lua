@@ -8,13 +8,13 @@ config.font = wezterm.font_with_fallback{ -- also disables ligatures
   { family = "Intel One Mono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, }, -- disable ligatures
   { family = "JetBrains Mono", scale = 1.00, harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }, }, }
 
-config.window_background_opacity = 1.00
+config.window_background_opacity = 0.95
 
 if myos == "windows" then -- windows-specific desktop env stuff
 	config.win32_system_backdrop = "Auto" -- only this seems to work
 end
 -------------------------------- Misc ------------------------------------------
-config.bold_brightens_ansi_colors = false -- bold is not bright
+config.bold_brightens_ansi_colors = true -- bold is not bright
 config.window_decorations = "TITLE|RESIZE"
 config.window_close_confirmation = "AlwaysPrompt"
 config.scrollback_lines = 3000
@@ -33,22 +33,23 @@ config.window_padding = {
 }
 
 ----------------------- Color scheme -------------------------------------------
-config.colors = {
-    foreground = '#D8DAD7',
-    background = '#303235',
-    cursor_bg = '#D8DAD7',
-    cursor_fg = '#303235',
-    cursor_border = '#D8DAD7',
-    selection_bg = '#41464A',
-    selection_fg = '#D8DAD7',
-    ansi = {
-        '#303235', '#D5A0A0', '#A6BFA6', '#D1BE91',
-        '#A8BFCE', '#BCAACB','#A3C4C5', '#D8DAD7',
-    },
-    brights = {
-        '#62686C', '#E2B0B0', '#B8CEB8', '#DFCEA6',
-        '#BCD0DD', '#CDBDDA','#B5D3D3', '#ECEDE9',
-    },
-}
+--config.colors = {
+--    foreground = '#D8DAD7',
+--    background = '#303235',
+--    cursor_bg = '#D8DAD7',
+--    cursor_fg = '#303235',
+--    cursor_border = '#D8DAD7',
+--    selection_bg = '#41464A',
+--    selection_fg = '#D8DAD7',
+--    ansi = {
+--        '#303235', '#D5A0A0', '#A6BFA6', '#D1BE91',
+--        '#A8BFCE', '#BCAACB','#A3C4C5', '#D8DAD7',
+--    },
+--    brights = {
+--        '#62686C', '#E2B0B0', '#B8CEB8', '#DFCEA6',
+--        '#BCD0DD', '#CDBDDA','#B5D3D3', '#ECEDE9',
+--    },
+--}
 
+config.color_scheme = 'Zenburn'
 return config
