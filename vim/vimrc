@@ -77,17 +77,6 @@ if has("eval")
         let g:loaded_matchparen=1
 endif
 
-set foldmethod=expr
-set foldexpr=MarkdownFold()
-
-function! MarkdownFold()
-    let line = getline(v:lnum)
-    if line =~ '^#\+'
-        return '>' . strlen(matchstr(line, '^#\+'))
-    endif
-    return '='
-endfunction
-
 " ripgrep, for vim
 set grepprg=rg\ --vimgrep\ --smart-case
 set grepformat=%f:%l:%c:%m
@@ -102,7 +91,6 @@ command! -nargs=+ Capture execute '!capture' . shellescape(<q-args>)
 " format shell on save
 if has("eval") " vim-tiny detection
 
-" TODO check for shfmt and shellcheck before defining
 " FIXME stop from blowing away file when there is shell error
 fun! s:FormatShell()
     let l:pos = getcurpos()
@@ -170,7 +158,6 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         Plug 'vim-pandoc/vim-pandoc-syntax'
         Plug 'dense-analysis/ale'
         Plug 'fatih/vim-go'
-        Plug 'Raku/vim-raku'
 
        " treesitter requires absolute latest nvim for some reason
         if has('nvim-0.12')
@@ -181,14 +168,11 @@ if filereadable(expand("~/.vim/autoload/plug.vim"))
         if has('nvim')
             Plug 'xolox/vim-misc'
             Plug 'xolox/vim-lua-ftplugin'
-            Plug 'neanias/everforest-nvim'
 
             " FIXME checkhealth complains about not finding perl executable
             "let g:loaded_perl_provider = 0
             " FIXME checkhealth also complains about ruby host
             "let g:loaded_ruby_provider = 0
-        "else
-        "    Plug 'sainnhe/everforest'
         endif
 
   call plug#end()
@@ -270,7 +254,7 @@ if has('syntax')
 
     syntax on
     set background=dark
-    colorscheme everforest
+    colorscheme soft-charcoal
 
    	hi clear SignColumn
    	hi Comment ctermbg=NONE guibg=NONE gui=italic cterm=italic
@@ -278,15 +262,15 @@ if has('syntax')
    	hi Normal ctermbg=NONE guibg=NONE
    	hi CursorLineNr ctermbg=NONE guibg=NONE
    	hi ColorColumn cterm=NONE
-   	hi MsgArea guifg=#5ca47f guibg=NONE
-   	hi ErrorMsg ctermfg=Red guifg=Red
-   	hi MoreMsg ctermfg=Yellow guifg=Yellow
+   	"hi MsgArea guifg=#5ca47f guibg=NONE
+   	"hi ErrorMsg ctermfg=Red guifg=Red
+   	"hi MoreMsg ctermfg=Yellow guifg=Yellow
 
-   augroup ModeColorChanges
-        autocmd!
-        autocmd ModeChanged *:[vV\x16]* highlight ModeMsg guifg=#f6c500
-        autocmd ModeChanged *:i* highlight ModeMsg guifg=red
-        autocmd ModeChanged *:n* highlight ModeMsg guifg=cyan
-   augroup END
+   "augroup ModeColorChanges
+   "     autocmd!
+   "     autocmd ModeChanged *:[vV\x16]* highlight ModeMsg guifg=#f6c500
+   "     autocmd ModeChanged *:i* highlight ModeMsg guifg=red
+   "     autocmd ModeChanged *:n* highlight ModeMsg guifg=cyan
+   "augroup END
 
 endif
